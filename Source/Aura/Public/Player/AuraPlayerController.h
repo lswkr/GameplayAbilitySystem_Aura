@@ -9,6 +9,8 @@
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class IEnemyInterface;
+
 /**
  * 
  */
@@ -19,6 +21,7 @@ class AURA_API AAuraPlayerController : public APlayerController
 
 public:
 	AAuraPlayerController();
+	virtual void PlayerTick(float DeltaTime) override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -32,5 +35,9 @@ private:
 	TObjectPtr<UInputAction> MoveAction; //MappingContext에서 설정된 IA 데이터
 
 	void Move(const FInputActionValue& InputActionValue); //매 프레임 호출
-	
+
+	void CursorTrace();
+	//이번 프레임에 hover할 캐릭터, 지난 프레임에 hover한 캐릭터에 대한 포인터 두 개, 같을 수도, 다를 수도 있다.
+	TScriptInterface<IEnemyInterface> LastActor;
+	TScriptInterface<IEnemyInterface> ThisActor;
 };

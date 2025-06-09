@@ -4,10 +4,77 @@
 #include "Player/AuraPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Interaction/EnemyInterface.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
 	bReplicates =true;
+}
+
+void AAuraPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+	
+	CursorTrace();
+}
+
+void AAuraPlayerController::CursorTrace() //매 프레임마다 호출
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit); //SimpleCollision만 하기 위해 false
+	if (!CursorHit.bBlockingHit) return;
+
+	LastActor = ThisActor;
+	ThisActor = CursorHit.GetActor();//TScriptInterface<IEnemyInterface>하면 Cast필요없이 바로 이렇게 할 수 있다.
+
+	/*
+	 * Line Trace from Cursor. There are several scenarios:
+	 * A. LastActor is null && ThisActor is null
+	 *		-Do Nothing(벽이나 다른 것들, 에너미 아닌 것들에 걸렸으므로)
+	 * B. LastActor is null && ThisActor is Valid
+	 *		-Highlight ThisActor(처음으로 hover된 경우이므로)
+	 * C. LastActor is Valid && ThisActor is null
+	 *		-UnHighlight LastActor(더 이상 hover하지 않으므로)
+	 *
+	 * D. Both Actors are valid, but LastActor != ThisActor
+	 *		-UnHighlight LastActor and Highlight ThisActor(다른 놈으로 옮겨갔을 때)
+	 * E. Both Actors are valid and are the same actor
+	 *		-Do Nothing(계속 같은 놈 Hover중이므로)
+	 */
+	
+	if (LastActor == nullptr)
+	{
+		if (ThisActor != nullptr)
+		{
+			//Case B
+			ThisActor->HighlightActor();
+		}
+		else
+		{
+			//Case A Both are null, do nothing
+		}
+	}
+	else //LastActor is valid
+	{
+		if (ThisActor == nullptr) 
+		{
+			//Case C
+			LastActor->UnHighlightActor();
+		}
+		else // both actors are valid
+		{
+			if (LastActor == ThisActor)
+			{
+				//Case D
+				LastActor->UnHighlightActor();
+				ThisActor->HighlightActor();
+			}
+			else
+			{
+				//Case E - Do Nothing
+			}
+		}
+	}
 }
 
 void AAuraPlayerController::BeginPlay()
@@ -55,3 +122,5 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 		
 	}
 }
+
+
