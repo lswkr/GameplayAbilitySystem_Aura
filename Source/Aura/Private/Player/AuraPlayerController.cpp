@@ -51,7 +51,7 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 	if (APawn* ControlledPawn = GetPawn<APawn>())
 	{
 		ControlledPawn ->AddMovementInput(ForwardDirection, InputAxisVector.Y);//InputAxisVector.Y이 양수인지 음수인지에 따라 앞 뒤 방향 결정
-		ControlledPawn ->AddMovementInput(RightDirection, InputAxisVector.Y);//InputAxisVector.X가 양수인지 음수인지에 따라 좌 우 방향 결정
+		ControlledPawn ->AddMovementInput(RightDirection, InputAxisVector.X);//InputAxisVector.X가 양수인지 음수인지에 따라 좌 우 방향 결정
 		
 	}
 }
