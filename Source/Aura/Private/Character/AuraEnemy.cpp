@@ -14,7 +14,8 @@ AAuraEnemy::AAuraEnemy()
 	//Enemy는 직접적으로 ASC,AS를 가지게 했다. Aura Character는 가지지 않음
 	AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
-
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 }
 
