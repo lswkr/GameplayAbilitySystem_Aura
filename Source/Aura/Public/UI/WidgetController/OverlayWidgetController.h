@@ -9,6 +9,8 @@
 struct FOnAttributeChangeData;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth); //Dynamic -블루프린트에서 이벤트를 할당하기 위해, multicast - 여러 블루프린트에게 전달하기 위해
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
 
 /**
  * 하나만 가지게 된다(singleton)
@@ -28,7 +30,16 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attribute") 
 	FOnMaxHealthChangedSignature OnMaxHealthChanged;
 
+	UPROPERTY(BlueprintAssignable,Category = "GAS|Attribute")
+	FOnManaChangedSignature OnManaChanged;
+
+	UPROPERTY(BlueprintAssignable,Category = "GAS|Attribute")
+	FOnMaxManaChangedSignature OnMaxManaChanged;
+	
+
 protected:
 	void HealthChanged(const FOnAttributeChangeData& Data) const; //ASC에서 값 바뀔 때 호출되는 델리게이트에 바인딩 시킬 함수
 	void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
+	void ManaChanged(const FOnAttributeChangeData& Data)const;
+	void MaxManaChanged(const FOnAttributeChangeData& Data)const;
 };
