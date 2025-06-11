@@ -13,7 +13,8 @@ UOverlayWidgetController* AAuraHUD::GetOverlayWidgetController(const FWidgetCont
 	{
 		OverlayWidgetController = NewObject<UOverlayWidgetController> (this,OverlayWidgetControllerClass);
 		OverlayWidgetController -> SetWidgetControllerParams(WCParams);
-
+		OverlayWidgetController -> BindCallbacksToDependencies();//첫 초기화
+		//컨트롤러는 델리게이트에 바인드 된 위젯에 대해 전혀 아는 것이 없다.
 		return OverlayWidgetController; 
 	}
 	return OverlayWidgetController;
