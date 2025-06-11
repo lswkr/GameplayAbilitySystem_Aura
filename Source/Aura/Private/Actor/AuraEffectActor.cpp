@@ -2,40 +2,14 @@
 
 
 #include "Actor/AuraEffectActor.h"
-#include "AbilitySystem/AuraAttributeSet.h"
-#include "AbilitySystemInterface.h"
-#include "Components/SphereComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 
 
 AAuraEffectActor::AAuraEffectActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	SetRootComponent(Mesh);
-	
-	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
-	Sphere->SetupAttachment(GetRootComponent()); //Mesh움직이면 Sphere도 같이 움직인다.
-}
-
-void AAuraEffectActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	//TODO : Change this to apply a gameplay effect. For now, using const_cast as a hack
-	if (IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(OtherActor))
-	{
-		const UAuraAttributeSet* AuraAttributeSet = Cast<UAuraAttributeSet>(ASCInterface->GetAbilitySystemComponent()->GetAttributeSet(UAuraAttributeSet::StaticClass()));//UAuraAttributeSet의 StaticCLass넣은 이유->ASC에서 UAuraAttributeSet를 찾아 UAuraAttributeSet포인터를 반환받으려고
-
-		UAuraAttributeSet* MutableAuraAttributeSet = const_cast<UAuraAttributeSet*>(AuraAttributeSet);
-		MutableAuraAttributeSet->SetMana(AuraAttributeSet->GetMana() - 25.f);
-		Destroy();
-	}
-	
-}
-
-void AAuraEffectActor::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
+	SetRootComponent(CreateDefaultSubobject<USceneComponent> ("SceneRoot")); //최대한의 유연성을 위해 Scenecomponent만 하나 생성해서 RootComponent로 설정
 	
 }
 
@@ -43,8 +17,23 @@ void AAuraEffectActor::EndOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 void AAuraEffectActor::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AAuraEffectActor::OnOverlap);
-	Sphere->OnComponentEndOverlap.AddDynamic(this, &AAuraEffectActor::EndOverlap);
+void AAuraEffectActor::ApplyEffectToTarget(AActor* Target, TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target);
+
+	if (TargetASC==nullptr) return;
+
+	check(GameplayEffectClass);
+	
+	FGameplayEffectContextHandle EffectContextHandle = TargetASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(this);
+	//어떤 ASC든 GameplayEffectClass만 있으면 GameplayEffectSpec을 만들 수 있다.
+	const FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, 1.f, EffectContextHandle);//gameplay effect는 각자의 레벨을 가지고 있다. 이 함수는 SpecHandle을 반환한다.
+	//Spec EffectSpec - 보통 Handle을 줄여서 저렇게 명명한다.
+	TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());//Data는 스마트 포인터(TSharedPtr)이다. 그래서 진짜의 RawPointer를 얻으려면 Get()함수를 써야한다. Get함수가 포인터를 반환하는데 지금 함수는 값을 원하므로 *까지 붙여주면 끝
+	
 }
 
