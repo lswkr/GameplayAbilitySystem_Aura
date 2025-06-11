@@ -1,7 +1,7 @@
 // Copyright LeeSeungwon
 
 
-#include "UI/Widgets/AuraUserWidget.h"
+#include "UI/Widget/AuraUserWidget.h"
 
 void UAuraUserWidget::SetWidgetController(UObject* InWidgetController)
 {
