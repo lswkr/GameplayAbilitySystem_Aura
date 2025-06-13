@@ -71,4 +71,7 @@ protected:
 	EEffectRemovalPolicy InfiniteEffectRemovalPolicy = EEffectRemovalPolicy::DoNotRemove;
 
 	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveEffectHandles; //FActiveGameplayEffectHandle포인터나 참조가 아니므로 전방 선안 하지 않음, GameplayEffectTypes헤더파일을 바로 가져옴
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	float ActorLevel = 1.f;
 };

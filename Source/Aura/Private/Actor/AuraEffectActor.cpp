@@ -31,10 +31,10 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 	FGameplayEffectContextHandle EffectContextHandle = TargetASC->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(this);
 	//어떤 ASC든 GameplayEffectClass만 있으면 GameplayEffectSpec을 만들 수 있다.
-	const FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, 1.f, EffectContextHandle);//gameplay effect는 각자의 레벨을 가지고 있다. 이 함수는 SpecHandle을 반환한다.
+	const FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, ActorLevel, EffectContextHandle);//gameplay effect는 각자의 레벨을 가지고 있다. 이 함수는 SpecHandle을 반환한다.
 	//Spec EffectSpec - 보통 Handle을 줄여서 저렇게 명명한다.
 	const FActiveGameplayEffectHandle ActiveEffectHandle = TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());//Data는 스마트 포인터(TSharedPtr)이다. 그래서 진짜의 RawPointer를 얻으려면 Get()함수를 써야한다. Get함수가 포인터를 반환하는데 지금 함수는 값을 원하므로 *까지 붙여주면 끝
-	//ApplyGameplayEffectSpecToSelf는 GE적용하면 GE는 Active상태가 되고 FGameplayEffectHandle반환- infinite일 경우 이 핸들과 액터를 저장해서 이후 처리에 활용->Map에 저장
+	//ApplyGameplayEffectSpecToSelf는 GE적용하면 GE는 Active상태가 되고 FGameplayEffectHandle반환- infinite일 경우 이 핸들과 ASC를 저장해서 이후 처리에 활용->Map에 저장
 
 	const bool bIsInfinite = EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite;//Def-GE그 자체의 ObjectPtr
 
