@@ -31,4 +31,6 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
+
+	virtual void InitAbilityActorInfo(); //초기화를 델리게이트로 하려고 만든 함수
 };
