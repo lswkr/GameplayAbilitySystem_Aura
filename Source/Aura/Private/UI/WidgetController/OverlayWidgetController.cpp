@@ -38,12 +38,17 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		AuraAttributeSet->GetMaxManaAttribute()).AddUObject(this, &UOverlayWidgetController::MaxManaChanged);
 
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
-		[](const FGameplayTagContainer& AssetTags)
+		[this](const FGameplayTagContainer& AssetTags)//람다 함수는 Global말고는 해당 클래스에 아는 내용이 없다.->[]에 추가
 		{
 			for (const FGameplayTag& Tag : AssetTags)
 			{
-				const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString()); 
-				GEngine -> AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
+				//"A.1".MatchesTag("A") will return True, "A".MatchesTag("A.1") will return False
+				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message")); 
+				if (Tag.MatchesTag(MessageTag)) // "Message"들만 골라 내도록
+				{
+					const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);//이 데이터로 이펙트 적용 시 브로드 캐스트할 것
+					MessageWidgetRowDelegate.Broadcast(*Row);
+				}
 			}
 		}
 	);//람다 함수를 사용함으로써 굳이 콜백 함수를 만들 필요가 없다.

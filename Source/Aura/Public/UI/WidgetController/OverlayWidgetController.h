@@ -7,13 +7,8 @@
 #include "UI/WidgetController/AuraWidgetController.h"
 #include "OverlayWidgetController.generated.h"
 
-class UAuraUserWidget;
-struct FOnAttributeChangeData;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth); //Dynamic -블루프린트에서 이벤트를 할당하기 위해, multicast - 여러 블루프린트에게 전달하기 위해
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana); 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
+struct FOnAttributeChangeData;
 
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
@@ -27,11 +22,21 @@ struct FUIWidgetRow : public FTableRowBase
 	FText Message = FText();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<UAuraUserWidget> MessageWidget;
-
+	TSubclassOf<class UAuraUserWidget> MessageWidget;//여기서 전방 선언
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UTexture2D* Image = nullptr;
 };
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth); //Dynamic -블루프린트에서 이벤트를 할당하기 위해, multicast - 여러 블루프린트에게 전달하기 위해
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
+
+
 
 /**
  * 하나만 가지게 된다(singleton)
@@ -56,7 +61,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attribute")
 	FOnMaxManaChangedSignature OnMaxManaChanged;
-	
+
+	UPROPERTY(BlueprintAssignable,Category = "GAS|Messages")
+	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
 protected:
 
@@ -67,4 +74,13 @@ protected:
 	void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
 	void ManaChanged(const FOnAttributeChangeData& Data)const;
 	void MaxManaChanged(const FOnAttributeChangeData& Data)const;
+
+	template <typename T>
+	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag Tag);
 };
+
+template <typename T>
+T* UOverlayWidgetController::GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag Tag)
+{
+	return DataTable -> FindRow<T>(Tag.GetTagName(),  TEXT("")); //FindRow자체가 Template 함수, input: Tag랑 Row랑 이름 같이 할 것이므로 Tag의 Name으로 설정
+}

@@ -63,7 +63,7 @@ void AAuraPlayerController::CursorTrace() //매 프레임마다 호출
 		}
 		else // both actors are valid
 		{
-			if (LastActor == ThisActor)
+			if (LastActor != ThisActor)
 			{
 				//Case D
 				LastActor->UnHighlightActor();
