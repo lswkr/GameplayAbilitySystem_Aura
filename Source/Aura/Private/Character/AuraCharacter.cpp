@@ -58,4 +58,5 @@ void AAuraCharacter::InitAbilityActorInfo()
 			AuraHUD->InitOverlay(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
+	InitializeDefaultAttributes();// 서버에서만불러도 어차피 Replicate되게 되어있어 클라이언트에 자동으로 가게 되어 있지만 두 군데에서 다 호출해도 상관없다. ASC가 결정되어 있는 곳에서 불러야하므로 여기서 호출한다.
 }

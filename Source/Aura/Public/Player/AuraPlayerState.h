@@ -24,7 +24,7 @@ public:
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)//PlayerState블루프린트에서 볼 수 있도록 Visibleanywhere로 설정
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()

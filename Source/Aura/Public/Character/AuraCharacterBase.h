@@ -9,6 +9,7 @@
 
 class UAbilitySystemComponent;
 class UAttributeSet;
+class UGameplayEffect;
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface
 {
@@ -33,4 +34,16 @@ protected:
 	TObjectPtr<UAttributeSet> AttributeSet;
 
 	virtual void InitAbilityActorInfo(); //초기화를 델리게이트로 하려고 만든 함수
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes; //default 어트리뷰트들을 초기화시키는 GE를 설정
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes; //Infinite GE일 예정
+
+	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const;
+	void InitializeDefaultAttributes() const; // Aura에게만 할 함수
+	
+	// void InitializePrimaryAttributes() const; //Attribute GE를 적용시키는 함수
+	// void InitializeSecondaryAttributes() const; //Secondary Attribute를 적용할 함수,
 };
