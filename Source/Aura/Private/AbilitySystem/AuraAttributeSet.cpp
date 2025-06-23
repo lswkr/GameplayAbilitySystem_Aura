@@ -10,8 +10,9 @@
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
-	InitHealth(10.f);
-	InitMana(50.f);
+	// InitHealth(10.f);
+	// InitMana(50.f); 하드 코드 안 할 것임, 게임플레이 이펙트로 초기화 할 것임
+	
 }
 
 void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
