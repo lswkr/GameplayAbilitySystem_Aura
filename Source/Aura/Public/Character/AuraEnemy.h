@@ -23,8 +23,19 @@ public:
 	virtual void UnHighlightActor() override;
 	/*End Enemy Interface*/
 
+	/*Combat Interface*/
+	virtual int32 GetPlayerLevel() override;
+	/*End Combat Interface*/
+	
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void InitAbilityActorInfo() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	int32 Level = 1; //그냥 서버에만 있으면 되는 값이므로 굳이 Replicate할 필요없다.
+
+private:
+	
+	
 };
