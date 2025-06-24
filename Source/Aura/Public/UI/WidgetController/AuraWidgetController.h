@@ -43,6 +43,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetControllerParams(const FWidgetControllerParams& WCParams);
 
+	UFUNCTION(BlueprintCallable)
 	virtual void BroadcastInitialValue(); //UOverlayWidgetController같은 자식클래스에서 활용
 	virtual void BindCallbacksToDependencies();
 protected:

@@ -5,7 +5,7 @@
 
 #include "UI/Widget/AuraUserWidget.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
-
+#include "UI/WidgetController/AttributeMenuWidgetController.h"
 
 UOverlayWidgetController* AAuraHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
@@ -15,9 +15,19 @@ UOverlayWidgetController* AAuraHUD::GetOverlayWidgetController(const FWidgetCont
 		OverlayWidgetController -> SetWidgetControllerParams(WCParams);
 		OverlayWidgetController -> BindCallbacksToDependencies();//첫 초기화
 		//컨트롤러는 델리게이트에 바인드 된 위젯에 대해 전혀 아는 것이 없다.
-		return OverlayWidgetController; 
 	}
 	return OverlayWidgetController;
+}
+
+UAttributeMenuWidgetController* AAuraHUD::GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (AttributeMenuWidgetController == nullptr)
+	{
+		AttributeMenuWidgetController = NewObject<UAttributeMenuWidgetController> (this,AttributeMenuWidgetControllerClass);
+		AttributeMenuWidgetController -> SetWidgetControllerParams(WCParams);
+		AttributeMenuWidgetController -> BindCallbacksToDependencies();
+	}
+	return AttributeMenuWidgetController;
 }
 
 void AAuraHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
@@ -37,6 +47,7 @@ void AAuraHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySyst
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams);
 
+	
 	//WidgetControllerParams를 넣었다는 것은 저것들이 다 세팅됐다는 것.->이를 이용해 WidgetController를 초기화한다.
 	OverlayWidget->SetWidgetController(WidgetController);
 	WidgetController -> BroadcastInitialValue();
