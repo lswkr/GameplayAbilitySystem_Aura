@@ -15,9 +15,13 @@
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
-/**
- * 
- */
+
+//DECLARE_DELEGATE_RetVal(FGameplayAttribute, FAttributeSignature); //value를 리턴하는 델리게이트 (반환 타입, 델리게이트 이름), 예시로 사용했었음
+//typedef TBaseStaticDelegateInstance<FGameplayAttribute(), FDefaultDelegateUserPolicy>::FFuncPtr FAttributeFuncPtr;
+//typedef는 FGameplayAttribute() signature에 specific하지만 TStaticFunPtr은 어떤 signature이건간에 generic하다. 
+template <class T>
+using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T, FDefaultDelegateUserPolicy>::FFuncPtr; //템플릿을 활용해 위의 Typedef보다 더 유연하게 활용 가능
+
 
 USTRUCT(BlueprintType)
 struct FEffectProperties
@@ -66,6 +70,12 @@ public:
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
+//	TMap<FGameplayTag, FAttributeSignature> TagsToAttributes;
+	/*
+	 * FunctionPointer로 원하는 함수의 Pointer를 가져올 수 있다. 그러니 FAttributeSignature말고 그냥 Attribute에 해당하는 함수를 가져오도록 Map을 만들면된다.
+	 */
+	TMap<FGameplayTag,  TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes; //태그에 해당하는 함수를 저장하는 Map, FGameplayAttribute반환 , 인수는 없는 함수에 대한 포인터
+	//TStaticFuncPtr<float(int32, float, int32)> 이런식으로 반환타입(인수 타입1,2..)의 함수에 대해 해당 템플릿을 활용할 수 있다.
 	/*
 	 * Primary Attribute
 	 */
