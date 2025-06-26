@@ -20,6 +20,8 @@ public:
 
 	//Widget controller가 bind할 수 있어야 하므로 public
 	FEffectAssetTags EffectAssetTags;
+
+	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	
 protected:
 	

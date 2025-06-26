@@ -11,6 +11,7 @@
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
+class UGameplayAbility;
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
@@ -47,6 +48,11 @@ protected:
 	
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const; //위 Attributes들을 초기화하는 GE를 적용하는 함수 
 	void InitializeDefaultAttributes() const; // Aura에게만 할 함수
+
+	void AddCharacterAbilities();
+private:
+	UPROPERTY(EditAnywhere, Category="Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 	
 	// void InitializePrimaryAttributes() const; //Attribute GE를 적용시키는 함수
 	// void InitializeSecondaryAttributes() const; //Secondary Attribute를 적용할 함수,
