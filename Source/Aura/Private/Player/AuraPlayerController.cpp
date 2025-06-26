@@ -86,11 +86,11 @@ void AAuraPlayerController::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());//서브시스템은 하나만 존재한다
 	if (Subsystem)
 	{
-		Subsystem->AddMappingContext(AuraContext, 0);
+		Subsystem->AddMappingContext(AuraContext, 0); //매핑 컨텍스트 설정
 	}
 	
-	bShowMouseCursor=true;
-	DefaultMouseCursor = EMouseCursor::Default;
+	bShowMouseCursor=true; //마우스 커서 보이도록
+	DefaultMouseCursor = EMouseCursor::Default; //마우스 커서도 여러 종류가 있음(crosshair, 잡는 손 등)
 
 	FInputModeGameAndUI InputModeData;
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
@@ -102,7 +102,7 @@ void AAuraPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	UEnhancedInputComponent*  EnhancedInputComponent= CastChecked<UEnhancedInputComponent>(InputComponent);//InputComponent는 내장된 변수. UEnhancedInputComponent타입을 저장하고 있음
+	UEnhancedInputComponent*  EnhancedInputComponent= CastChecked<UEnhancedInputComponent>(InputComponent);//InputComponent는 내장된 변수. UEnhancedInputComponent타입을 저장하도록 언리얼엔진에서 설정
 
 	//MappingContext에 있는 IA들에 대한 변수 필요
 	EnhancedInputComponent->BindAction(MoveAction,ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);

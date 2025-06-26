@@ -7,11 +7,11 @@
 #include "AbilitySystem/AuraAttributeSet.h"
 
 
-void UOverlayWidgetController::BroadcastInitialValue()
+void UOverlayWidgetController::BroadcastInitialValue() //OverlayWidgetController가 가지고 있는 모든 위젯에 브로드캐스팅(Overlay위젯 하나에 설정된 컨트롤러에 많은 다른 위젯들이 바인딩되어있다.)
 {
 	const UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 	
-	OnHealthChanged.Broadcast(AuraAttributeSet->GetHealth());
+	OnHealthChanged.Broadcast(AuraAttributeSet->GetHealth()); 
 	OnMaxHealthChanged.Broadcast(AuraAttributeSet->GetMaxHealth());
 
 	OnManaChanged.Broadcast(AuraAttributeSet->GetMana());
@@ -57,7 +57,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		}
 	);
 
-	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
+	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda( //EffectAssetTags는 FGameplayTagContainer를 인자로하는 델리게이트->Tag받았을 때 Message달고 있는 것을 찾아서 데이터테이블에서 그에 해당하는 Row를 브로드캐스트한다. 이 브로드캐스트는 Overlay에 바인딩된 함수에 보내진다.
 		[this](const FGameplayTagContainer& AssetTags)//람다 함수는 Global말고는 해당 클래스에 아는 내용이 없다.->[]에 추가
 		{
 			for (const FGameplayTag& Tag : AssetTags)
