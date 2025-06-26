@@ -17,7 +17,7 @@ struct FAuraInputAction
 	const class UInputAction* InputAction = nullptr; //const는 런타임에서는 고칠 수 없다는 것. 블루프린트에서 값 설정은 가능하다
 
 	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag GameplayTag = FGameplayTag(); //const GameplayTag는 못 하는듯하다.
+	FGameplayTag InputTag = FGameplayTag(); //const GameplayTag는 못 하는듯하다.
 };
 
 /**
