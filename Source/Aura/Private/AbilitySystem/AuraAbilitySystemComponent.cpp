@@ -8,8 +8,14 @@
 
 void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 {
-	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UAuraAbilitySystemComponent::EffectApplied);//Dynamic아니므로 Adduboject
-	//OnGameplayEffectAppliedDelegateToSelf: 서버에서 GE가 자기 자신에게 적용될 때마다 호출.Instant, Duration GE가 포함된다.
+	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UAuraAbilitySystemComponent::ClientEffectApplied);//Dynamic아니므로 Adduboject)
+	//OnGameplayEffectAppliedDelegateToSelf: 서버에서 GE가 자기 자신에게 적용될 때마다 호출.Instant, Duration GE가 포함된다.->아무 설정 없이는 클라이언트 측면에서 메시지 위젯이 안 뜨는 문제 발생
+	/*
+	 * EffectApplied 이 함수를 클라이언트 RPC로 만들면 서버에서 호출되고 클라이언트에서도 호출될 것이다. 클라이언트 RPC는 서버에서 호출되고 클라이언트에서 실행되도록 만들어진다.
+	 * 서버에 있는 ASC(호스팅 하는 플레이어)에서 호출되면 클라이언트 RPC는 서버에서 호출된다. 그리고 클라이언트 쪽으로 레플리케이트 되지 않는다(클라이언트가 서버에 있으므로).
+	 *
+	 * ClientEffectApplied로 만들어서 UFUNCTION붙이고 설정 해 놓으면 서버에서 브로드캐스트 할 때 서버에서 호출되고 클라이언트에서 실행된다.
+	 */
 }
 
 void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
@@ -69,7 +75,7 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 	}
 }
 
-void UAuraAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* AbilitySystemComponent,
+void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
                                                 const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
 	//태그는 Tarray말고 GameplayTagContainer에 담는다.

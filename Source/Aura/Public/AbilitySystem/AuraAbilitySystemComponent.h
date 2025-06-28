@@ -28,7 +28,8 @@ public:
 
 	
 protected:
-	
-	void EffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
+
+	UFUNCTION(Client, Reliable)// Reliable: 클라이언트에 도달하는 것을 보장(패킷 손실과 같은 상황에서도 받았다는 Corfirmation받을 때까지 계속 보낸다)
+	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
 
 };
