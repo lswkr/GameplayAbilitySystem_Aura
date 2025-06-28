@@ -12,9 +12,17 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
+	
+	
+	
+}
+
+void UAuraProjectileSpell::SpawnProjectile()
+{
 	//projectile을 서버에서 소환하고 싶고 레플리케이트시키고 싶음, 클라이언트는 레플리케이트버전을 가지고 노는 것
 
-	const bool bIsServer = HasAuthority(&ActivationInfo); //HasAuthority: 이 함수를 통해 서버에 있는지 확인 가능
+	
+	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); //HasAuthority: 이 함수를 통해 서버에 있는지 확인 가능
 
 	if (!bIsServer) return; //서버 아니면 바로 return;
 
@@ -40,7 +48,5 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 		
 	
 	}
-	
-	
 	
 }

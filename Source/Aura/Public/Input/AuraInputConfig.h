@@ -34,4 +34,6 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FAuraInputAction> AbilityInputActions;
+
+
 };
