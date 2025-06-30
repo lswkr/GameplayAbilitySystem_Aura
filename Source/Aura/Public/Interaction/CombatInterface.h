@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+
 #include "CombatInterface.generated.h"
 
+class UMotionWarpingComponent;
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, BlueprintType)
 class UCombatInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -25,4 +27,7 @@ public:
 	virtual int32 GetPlayerLevel(); //BaseCharacter Class에서 상속받도록
 
 	virtual FVector GetCombatSocketLocation();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)//BlueprintImplementableEvent이므로 virtual
+	void UpdateFacingTarget(const FVector& Target);
 };

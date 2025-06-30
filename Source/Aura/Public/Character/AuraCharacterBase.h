@@ -34,6 +34,7 @@ protected:
 
 	virtual FVector GetCombatSocketLocation() override;
 	
+
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 

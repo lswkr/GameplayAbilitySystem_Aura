@@ -132,14 +132,10 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		}
 		return;
 	}
-	if (bTargeting) //LMB이고 Targeting이면(Enemy에 마우스를 갖다대고 있는 상태이면)
-	{
-		if (GetASC())
-		{
-			GetASC()->AbilityInputTagReleased(InputTag);
-		}
-	}
-	else
+	
+	if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag); //released됐다고 알려줌
+	
+	if (!bTargeting && !bShiftKeyDown) //마우스 뗀 상태에서는 targeting하거나 shiftkey누른 상태가 아니면 shortpressthreshold를 측정할 필요 없다.
 	{
 		const APawn* ControlledPawn = GetPawn();
 		if (FollowTime <= ShortPressThreshold && ControlledPawn)//FollowTime: AbilityInputTagHeld 함수에서 모아지고 있는 시간
@@ -161,6 +157,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		FollowTime = 0;
 		bTargeting = false;
 	}
+
 }
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
@@ -174,7 +171,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 		return;
 	}
 	
-	if (bTargeting) //LMB이고 Targeting이면(Enemy에 마우스를 갖다대고 있는 상태이면)
+	if (bTargeting || bShiftKeyDown) //LMB이고 Targeting이면(Enemy에 마우스를 갖다대고 있는 상태이면), 또는 shift key가 눌러져있는 상태이면
 	{
 		if (GetASC())
 		{
@@ -241,7 +238,10 @@ void AAuraPlayerController::SetupInputComponent()
 	UAuraInputComponent*  AuraInputComponent= CastChecked<UAuraInputComponent>(InputComponent);//InputComponent는 내장된 변수. UEnhancedInputComponent타입을 저장하도록 언리얼엔진에서 설정
 	//MappingContext에 있는 IA들에 대한 변수 필요
 	AuraInputComponent->BindAction(MoveAction,ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &AAuraPlayerController::ShiftPressed);
+	AuraInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AAuraPlayerController::ShiftReleased);
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+	
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)

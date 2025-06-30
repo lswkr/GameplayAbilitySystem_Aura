@@ -38,6 +38,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> MoveAction; //MappingContext에서 설정된 IA 데이터
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> ShiftAction; 
+
+	void ShiftPressed() { bShiftKeyDown = true; };
+	void ShiftReleased() { bShiftKeyDown = false; };
+	bool bShiftKeyDown = false;
+	
 	void Move(const FInputActionValue& InputActionValue); //매 프레임 호출
 
 	void CursorTrace();

@@ -6,7 +6,7 @@
 #include "Abilities/Tasks/AbilityTask.h"
 #include "TargetDataUnderMouse.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature, const FVector&, Data);//마우스 커서 로케이션 브로드캐스트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature, const FGameplayAbilityTargetDataHandle&, Data);//마우스 커서 로케이션 브로드캐스트
 
 /**
  * 
@@ -25,5 +25,7 @@ public:
 
 private:
 	virtual void Activate() override;
+	void SendMouseCursorData();
 
+	void OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ActivationTag);
 };

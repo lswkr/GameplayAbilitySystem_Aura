@@ -163,6 +163,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) //어떤 Attribute가 바뀌었는지 확인하는 부분
 	{
 		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
+		UE_LOG(LogTemp, Warning, TEXT("Changed Health: %s, Health: %f"), *Props.TargetAvatarActor->GetName(),GetHealth());
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute()) //어떤 Attribute가 바뀌었는지 확인하는 부분
 	{

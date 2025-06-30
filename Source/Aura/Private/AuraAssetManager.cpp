@@ -3,6 +3,7 @@
 
 #include "AuraAssetManager.h"
 #include "AuraGameplayTags.h"
+#include "AbilitySystemGlobals.h"
 
 UAuraAssetManager& UAuraAssetManager::Get()
 {
@@ -17,6 +18,7 @@ void UAuraAssetManager::StartInitialLoading()
 	Super::StartInitialLoading();
 
 	FAuraGameplayTags::InitializeNativeGameplayTags();
-
+	//This is required to use TargetData.
+	UAbilitySystemGlobals::Get().InitGlobalData();//이거 해줘야 서버, 클라이언트 간 연결 잘 된다는데 안 해도 일단 난 되긴 했음
 	
 }
