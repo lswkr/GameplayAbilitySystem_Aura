@@ -26,7 +26,7 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
 		if (const UAuraGameplayAbility* AuraAbility = Cast<UAuraGameplayAbility>(AbilitySpec.Ability))
 		{
-			AbilitySpec.DynamicAbilityTags.AddTag(AuraAbility->StartUpInputTag);
+			AbilitySpec.DynamicAbilityTags.AddTag(AuraAbility->StartUpInputTag);//Enemy는 InputTag필요X
 			/*
 			 * 런타임에 InputTag를 바꾸고 싶다. -> 어떤 어빌리티를 왼쪽 마우스 버튼에 할당했다가 오른쪽마우스 버튼으로 할당하고 싶을 경우
 			 * GameplayAbilitySpec은 Dynamic하게 추가되거나 삭제될 수 있는 태그 컨테이너를 가지고 있다.->이를 이용하려한다.

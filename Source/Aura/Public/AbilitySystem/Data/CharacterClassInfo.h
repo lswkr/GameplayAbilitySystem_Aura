@@ -1,0 +1,52 @@
+// Copyright LeeSeungwon
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Engine/DataAsset.h"
+#include "CharacterClassInfo.generated.h"
+
+class UGameplayEffect;
+class UGameplayAbility;
+
+UENUM(BlueprintType) //각 클래스에 constant로 넣을 것임
+enum class ECharacterClass: uint8
+{
+	Elementalist,
+	Warrior,
+	Ranger
+};
+
+USTRUCT(BlueprintType)
+struct FCharacterClassDefaultInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
+	TSubclassOf<UGameplayEffect> PrimaryAttributes;
+};
+/**
+ * 
+ */
+UCLASS()
+class AURA_API UCharacterClassInfo : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	//Enum과 Strunct연관위해 Map
+	UPROPERTY(EditDefaultsOnly, Category = "Character Class Defaults")
+	TMap<ECharacterClass,FCharacterClassDefaultInfo> CharacterClassInformation;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
+	TSubclassOf<UGameplayEffect> SecondaryAttributes;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
+	TSubclassOf<UGameplayEffect> VitalAttributes;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
+	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
+	
+	FCharacterClassDefaultInfo GetClassDefaultInfo(ECharacterClass CharacterClass);
+	
+};

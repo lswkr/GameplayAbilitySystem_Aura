@@ -8,6 +8,7 @@
 #include "CombatInterface.generated.h"
 
 class UMotionWarpingComponent;
+class UAnimMontage;
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
 class UCombatInterface : public UInterface
@@ -30,4 +31,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)//BlueprintImplementableEvent이므로 virtual
 	void UpdateFacingTarget(const FVector& Target);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UAnimMontage* GetHitReactMontage();
+
+	virtual void Die() = 0;
 };

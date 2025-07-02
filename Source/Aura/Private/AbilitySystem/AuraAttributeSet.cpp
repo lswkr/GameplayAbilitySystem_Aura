@@ -8,6 +8,7 @@
 #include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 #include "AuraGameplayTags.h"
+#include "Interaction/CombatInterface.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
@@ -168,7 +169,35 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 	if (Data.EvaluatedData.Attribute == GetManaAttribute()) //어떤 Attribute가 바뀌었는지 확인하는 부분
 	{
 		SetMana(FMath::Clamp(GetMana(),0.f,GetMaxMana()));
-	} 
+	}
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute()) //어떤 Attribute가 바뀌었는지 확인하는 부분
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();//locally 캐시 시켜놓는다.
+		SetIncomingDamage(0);//그 뒤 0으로 만든다.
+
+		if (LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			const bool bFatal = NewHealth <= 0.f;
+			if (bFatal) //죽을 때
+			{
+				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
+				if (CombatInterface)
+				{
+					CombatInterface->Die();
+				}
+			}
+			else
+			{
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
+				//특정 태그 있으면 실행시키도록
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);//클라이언트에서부를 수 있고 predictively하게 active
+			}
+		}
+	}
 
 	//props의 모든 변수가 유효할지 안 할지 모르므로 check를 잘 해줘야 한다. ASC가 제대로 되지 않은 액터가 걸릴 수 있으므로 무조건적인 어설트는 하면 안 된다.
 
