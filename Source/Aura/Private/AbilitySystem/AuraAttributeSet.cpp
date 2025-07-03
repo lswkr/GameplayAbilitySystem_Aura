@@ -9,6 +9,8 @@
 #include "Net/UnrealNetwork.h"
 #include "AuraGameplayTags.h"
 #include "Interaction/CombatInterface.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/AuraPlayerController.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
@@ -149,10 +151,11 @@ void UAuraAttributeSet::SetEffectProperties(const struct FGameplayEffectModCallb
 		Props.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
 		Props.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
 		Props.TargetCharacter = Cast<ACharacter>(Props.TargetAvatarActor);
-
 		Props.TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.TargetAvatarActor);
 	}
 }
+
+
 
 void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
@@ -170,7 +173,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 	{
 		SetMana(FMath::Clamp(GetMana(),0.f,GetMaxMana()));
 	}
-	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute()) //어떤 Attribute가 바뀌었는지 확인하는 부분
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute()) //어떤 Attribute가 바뀌었는지 확인하는 부분. //이 meta attribute는 서버에서 업데이트->그래서 아래에서 뭔가를 하면 서버에서만 일어남->클라에 데미지를 보여주기 위해 위젯을 플레이어 컨트롤러에 띄울 것임
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();//locally 캐시 시켜놓는다.
 		SetIncomingDamage(0);//그 뒤 0으로 만든다.
@@ -181,6 +184,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
 
 			const bool bFatal = NewHealth <= 0.f;
+			
 			if (bFatal) //죽을 때
 			{
 				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
@@ -196,6 +200,10 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 				//특정 태그 있으면 실행시키도록
 				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);//클라이언트에서부를 수 있고 predictively하게 active
 			}
+
+			ShowFloatingText(Props, LocalIncomingDamage);
+			
+			
 		}
 	}
 
@@ -209,6 +217,16 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 	
 }
 
+void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage) const
+{
+	if (Props.SourceCharacter != Props.TargetCharacter)//남이 때린 데미지에만 위젯이 반응 하도록
+	{
+		if (AAuraPlayerController* PC = Cast<AAuraPlayerController> (UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+		{
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter);
+		}
+	}
+}
 void UAuraAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Health, OldHealth);// ASC가 값이 레플리케이트 됐다는 것을 알 수 있다.
