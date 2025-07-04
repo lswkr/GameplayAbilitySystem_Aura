@@ -60,7 +60,9 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		//TODO: Give the Projectile a GameplayEffectSpec for Causing Damage.
 		
 		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
-		const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),SourceASC->MakeEffectContext()); //projectile에 줄 spechandle(Projectile클래스에 DamageEffectSpecHandle 변수에 설정)
+		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+		
+		const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),EffectContextHandle); //projectile에 줄 spechandle(Projectile클래스에 DamageEffectSpecHandle 변수에 설정)
 
 		const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
 		const float ScaledDamage = Damage.GetValueAtLevel(/*GetAbilityLevel()*/10);
