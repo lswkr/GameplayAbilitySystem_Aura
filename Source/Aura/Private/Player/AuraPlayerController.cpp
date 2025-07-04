@@ -28,7 +28,7 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	AutoRun();
 }
 
-void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)//클라 캐릭터입장에서, 서버에서 호출되지만 클라이언트에서 execute->클라에서 보임
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)//클라 캐릭터입장에서, 서버에서 호출되지만 클라이언트에서 execute->클라에서 보임
 {
 	if (IsValid(TargetCharacter) && DamageTextComponentClass) //IsValid는 포인터가 null인지 그리고 Pending kill인지 보는 함수. TextComponentClass는 블루프린트에서 설정하거나 안 하거나 하는 값이기에 굳이 PendingKill을 걱정안해도 되기에 캐릭터 포인터에만 사용함
 	{
@@ -36,7 +36,7 @@ void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, 
 		DamageText->RegisterComponent();//Dynamic하게 위젯컴포넌트를 만든 뒤에는 register해야한다.(생성자에서 생성한게 아닐 경우 이렇게 수동으로 register한다)
 		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);//루트 컴포넌트에 붙음
 		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform); //애니메이션 끝나고 사라지게 붙인 뒤 바로 떼버린다.
-		DamageText->SetDamageText(DamageAmount); //Damage숫자 설정(Blueprint함수)
+		DamageText->SetDamageText(DamageAmount,bBlockedHit, bCriticalHit); //Damage숫자 설정(Blueprint함수)
 		//Destroy는 SetDamageText에 구현되어있다.
 	}
 }

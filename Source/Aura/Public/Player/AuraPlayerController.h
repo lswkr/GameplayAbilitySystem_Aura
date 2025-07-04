@@ -31,7 +31,7 @@ public:
 	
 	//클라RPC를 만들것이다(서버에 호출, 서버에서 작동.컨트롤링플레이어가 local인 경우. 컨트롤링플레이어가 Remote인 경우 이 함수는 클라이언트에게 실행)
 	UFUNCTION(Client, Reliable)
-	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter); //TargetCharacter: 데미지 위젯 붙일 캐릭터
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit); //TargetCharacter: 데미지 위젯 붙일 캐릭터
 	
 protected:
 	virtual void BeginPlay() override;
