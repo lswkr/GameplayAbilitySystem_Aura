@@ -34,8 +34,8 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 	if (CombatInterface)
 	{
 		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();// 타겟이 작아서 기울어질 수 있으나 땅에 평행으로 가게 하고 싶다.
-		Rotation.Pitch= 0.f; //평행하게 가도록 피치를 0으로
+		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+		
 		if (GetOwningActorFromActorInfo() == nullptr)
 		{
 			UE_LOG(LogTemp, Error, TEXT("OwningActor is Null"));

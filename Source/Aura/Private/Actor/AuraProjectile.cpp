@@ -52,17 +52,28 @@ void AAuraProjectile::Destroyed()
 	{//destroy가 먼저 레플리케이트되어 Destroyed함수가 클라의OnSphereOverlap이전에 호출될 때, bhit은 false && 이건 클라에서만 관련됨(!HasAuthority)
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-		LoopingSoundComponent->Stop();
+		if (LoopingSoundComponent) LoopingSoundComponent->Stop();
 	}
 	Super::Destroyed();
 }
 
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-	LoopingSoundComponent->Stop();
+{	//UAuraProjectileSpell에서 SpawnProjectile할 때 서버가 아니면 빠른 Return을 하도록 했다.DamageEffectSpecHandle를 거기서 만들기에 클라에서는 DamageEffectSpecHandle가 Notvalid하다. 그래서 if문에 isValid를 추가해준다
+
+	if (OtherActor == GetOwner()) return;//162강 Q&A 답변
+	if (DamageEffectSpecHandle.Data.IsValid() && DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor) // 쏜 놈이랑 맞은 놈이 같으면 아무것도 안 하도록(뭔가를 하면 닿은 뒤 파괴되므로)
+	{
+		return;
+	}
+	if (!bHit) //이렇게 해서 클라에서 두 번 소리가 나는 것을 방지
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+
+		if (LoopingSoundComponent) LoopingSoundComponent->Stop();
+	}
+	
 	
 	if (HasAuthority())
 	{

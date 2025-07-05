@@ -239,7 +239,7 @@ void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)//남이 때린 데미지에만 위젯이 반응 하도록
 	{
-		if (AAuraPlayerController* PC = Cast<AAuraPlayerController> (UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+		if (AAuraPlayerController* PC = Cast<AAuraPlayerController> (Props.SourceCharacter->Controller))
 		{
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}

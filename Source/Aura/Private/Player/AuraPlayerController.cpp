@@ -30,7 +30,7 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 
 void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)//클라 캐릭터입장에서, 서버에서 호출되지만 클라이언트에서 execute->클라에서 보임
 {
-	if (IsValid(TargetCharacter) && DamageTextComponentClass) //IsValid는 포인터가 null인지 그리고 Pending kill인지 보는 함수. TextComponentClass는 블루프린트에서 설정하거나 안 하거나 하는 값이기에 굳이 PendingKill을 걱정안해도 되기에 캐릭터 포인터에만 사용함
+	if (IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController()) //IsValid는 포인터가 null인지 그리고 Pending kill인지 보는 함수. TextComponentClass는 블루프린트에서 설정하거나 안 하거나 하는 값이기에 굳이 PendingKill을 걱정안해도 되기에 캐릭터 포인터에만 사용함
 	{
 		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);//새 오브젝트 생성
 		DamageText->RegisterComponent();//Dynamic하게 위젯컴포넌트를 만든 뒤에는 register해야한다.(생성자에서 생성한게 아닐 경우 이렇게 수동으로 register한다)

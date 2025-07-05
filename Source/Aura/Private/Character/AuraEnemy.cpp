@@ -58,8 +58,10 @@ void AAuraEnemy::BeginPlay()
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	InitAbilityActorInfo();
-	UAuraAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);//da에 있는 공통 어빌리티 초기화
-	
+	if (HasAuthority())
+	{
+		UAuraAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);//da에 있는 공통 어빌리티 초기화
+	}
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject()))
 	{
 		AuraUserWidget->SetWidgetController(this); //위젯 컨트롤러 set
@@ -104,7 +106,11 @@ void AAuraEnemy::InitAbilityActorInfo()
 	AbilitySystemComponent->InitAbilityActorInfo(this,this);
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
-	InitializeDefaultAttributes(); //이 함수 돌리기 전에 블루프린트에서 어트리뷰트를 다 정해놓아야 함
+	if (HasAuthority())
+	{
+		InitializeDefaultAttributes(); //이 함수 돌리기 전에 블루프린트에서 어트리뷰트를 다 정해놓아야 함
+	}
+	
 }
 
 void AAuraEnemy::InitializeDefaultAttributes() const
