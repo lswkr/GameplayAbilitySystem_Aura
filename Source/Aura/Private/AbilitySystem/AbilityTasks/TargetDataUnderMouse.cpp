@@ -22,13 +22,13 @@ void UTargetDataUnderMouse::Activate()
 		//TODO: We are on the server, so listen for target data.
 		const FGameplayAbilitySpecHandle SpecHandle = GetAbilitySpecHandle();
 		const FPredictionKey ActivationPredictionKey = GetActivationPredictionKey();
-		AbilitySystemComponent.Get()->AbilityTargetDataSetDelegate(SpecHandle, ActivationPredictionKey) //target데이터와 연관된 prediction key
-		.AddUObject(this,&UTargetDataUnderMouse::OnTargetDataReplicatedCallback);
+		AbilitySystemComponent.Get()->AbilityTargetDataSetDelegate(SpecHandle, ActivationPredictionKey) //target데이터와 연관된 prediction key(/** Returns TargetDataSet delegate for a given Ability/PredictionKey pair */)
+		.AddUObject(this,&UTargetDataUnderMouse::OnTargetDataReplicatedCallback);//해당 ability와 predictionkey에 해당하는 델리게이트에 OnTargetDataReplicatedCallback를 바인딩
 		const bool bCalledDelegate = AbilitySystemComponent.Get()->CallReplicatedTargetDataDelegatesIfSet(SpecHandle, ActivationPredictionKey);//delegate가 이미 set되었는지, 아직 listen중인지
 
 		if (!bCalledDelegate)
 		{
-			SetWaitingOnRemotePlayerData(); //PlayerData를 기다르도록(아직 서버에 도달하지 못 했으므로)
+			SetWaitingOnRemotePlayerData(); //PlayerData를 기다리도록(아직 서버에 도달하지 못 했으므로)
 		}
 	}
 
@@ -40,14 +40,16 @@ void UTargetDataUnderMouse::SendMouseCursorData()//target data생성 및 전달
 	FScopedPredictionWindow ScopedPrediction(AbilitySystemComponent.Get());//이 영역에서 이 줄 아래에 있는 것들은 다 Predicted된다.
 	
 	APlayerController* PC = Ability->GetCurrentActorInfo()->PlayerController.Get();
-	FHitResult CursorHit;
+	FHitResult CursorHit; //커서에 닿은 것
 	PC->GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 
 	FGameplayAbilityTargetDataHandle DataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();
-	Data->HitResult = CursorHit;//커서 밑에 대한 데이터
-	DataHandle.Add(Data);
-	AbilitySystemComponent->ServerSetReplicatedTargetData(
+
+	Data->HitResult = CursorHit;//커서에 닿은 HitResult를 Data에 저장
+	DataHandle.Add(Data); //DataHandle에 Data저장
+
+	AbilitySystemComponent->ServerSetReplicatedTargetData( //Replicates targeting data to the server
 		GetAbilitySpecHandle(),
 		GetActivationPredictionKey(),
 		DataHandle,
@@ -66,6 +68,7 @@ void UTargetDataUnderMouse::OnTargetDataReplicatedCallback(const FGameplayAbilit
 	FGameplayTag ActivationTag)
 {
 	AbilitySystemComponent->ConsumeClientReplicatedTargetData(GetAbilitySpecHandle(), GetActivationPredictionKey());//TargetData를 받았으니 저장할 필요 없다는 것을 알려준다.(replicate된 데이터를 서버가 받았을 때 특정 자료구조에 저장하고 우리는 ASC에게 받았으니 저장할 필요가 없다고 말해줘야 한다. 받지 않았으면 저장해서 나중에 사용해야 하므로)
+	/* ConsumeClientReplicatedTargetData: 클라이언트에서 복제된 타겟 데이터만 소비합니다. */
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
 		ValidData.Broadcast(DataHandle);

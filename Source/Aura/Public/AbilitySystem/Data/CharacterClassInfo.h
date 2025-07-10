@@ -34,7 +34,7 @@ class AURA_API UCharacterClassInfo : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	//Enum과 Strunct연관위해 Map
+	//Enum과 Struct연관위해 Map
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class Defaults")
 	TMap<ECharacterClass,FCharacterClassDefaultInfo> CharacterClassInformation;
 	

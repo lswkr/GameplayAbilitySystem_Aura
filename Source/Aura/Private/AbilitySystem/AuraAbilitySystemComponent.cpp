@@ -82,5 +82,5 @@ void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySys
 	FGameplayTagContainer TagContainer;
 	EffectSpec.GetAllAssetTags(TagContainer);
 
-	EffectAssetTags.Broadcast(TagContainer);
+	EffectAssetTags.Broadcast(TagContainer); //EffectSpec에 있던 모든 태그를 가져온다. 이 때, 태그들은 OverlayWidgetController에서 사용
 }

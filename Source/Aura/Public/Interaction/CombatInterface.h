@@ -27,7 +27,7 @@ class AURA_API ICombatInterface
 public:
 	virtual int32 GetPlayerLevel(); //BaseCharacter Class에서 상속받도록
 
-	virtual FVector GetCombatSocketLocation();
+	virtual FVector GetCombatSocketLocation(); //불 나올 weapon의 소켓반환
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)//BlueprintImplementableEvent이므로 virtual
 	void UpdateFacingTarget(const FVector& Target);

@@ -28,8 +28,8 @@ public:
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override; //GA_HitReact에서 AnimMontage반환하는 함수
 	virtual void Die() override; //서버에서만 호출
 
-	UFUNCTION(NetMulticast, Reliable)
-	virtual void MulticastHandleDeath(); //클, 썹 다 연관
+	UFUNCTION(NetMulticast, Reliable) //NetMulticast - 서버를 포함해 세션에 접속된 모든 컴퓨터에 실행시키는 RPC. Die가 메타 어트리뷰트 if문에서 발생하기에 서버에서만 호출되므로 클, 섭 다 보내기 위한 RPC
+	virtual void MulticastHandleDeath();
 protected:
 	virtual void BeginPlay() override;
 
@@ -65,8 +65,6 @@ protected:
 	void AddCharacterAbilities();
 
 	/*Dissolve Effects*/
-
-	
 	void Dissolve(); //머티리얼 인스턴스를 가지고 DynamicMaterialInstance를 만들고 이로 바꿔치기 하는 함수
 
 	UFUNCTION(BlueprintImplementableEvent) //타임라인 활용은 블루프린트가 더 쉬움->BlueprintImplementable
@@ -87,6 +85,4 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
-	// void InitializePrimaryAttributes() const; //Attribute GE를 적용시키는 함수
-	// void InitializeSecondaryAttributes() const; //Secondary Attribute를 적용할 함수,
 };

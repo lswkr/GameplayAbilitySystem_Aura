@@ -29,7 +29,7 @@ public:
 	
 protected:
 
-	UFUNCTION(Client, Reliable)// Reliable: 클라이언트에 도달하는 것을 보장(패킷 손실과 같은 상황에서도 받았다는 Corfirmation받을 때까지 계속 보낸다)
+	UFUNCTION(Client, Reliable)// Client: 서버에서 호출하지만 클라에서 실행되는 RPC. Reliable: 클라이언트에 도달하는 것을 보장(패킷 손실과 같은 상황에서도 받았다는 Corfirmation받을 때까지 계속 보낸다)
 	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
 
 };

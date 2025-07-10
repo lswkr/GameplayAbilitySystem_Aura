@@ -25,13 +25,13 @@ AAuraCharacter::AAuraCharacter()
 
 }
 
-void AAuraCharacter::PossessedBy(AController* NewController)
+void AAuraCharacter::PossessedBy(AController* NewController) //PossessedBy: Only called on the server (or in standalone)
 {
 	Super::PossessedBy(NewController);
 
 	//init ability actor info for the server
 	InitAbilityActorInfo();
-	AddCharacterAbilities();
+	AddCharacterAbilities(); //어빌리티는 서버에서만
 }
 
 void AAuraCharacter::OnRep_PlayerState() //OnRep_PlayerState 함수의 호출은 PlayerState 객체의 변경사항이 복제(replication) 될 때 발생, 게임 시작 후 캐릭터가 생성되거나, 죽어서 새로 생성될 때 OnRep_PlayerState가 호출되는 이유는 PlayerState 내의 특정 값이 초기화되거나 변경되어, 이 변화가 클라이언트에 전달되기 때문.

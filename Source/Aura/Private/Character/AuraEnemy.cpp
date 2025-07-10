@@ -10,6 +10,9 @@
 #include "Aura/Aura.h"
 #include "UI/Widget/AuraUserWidget.h"
 #include "AuraGameplayTags.h"
+#include "AI/AuraAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AAuraEnemy::AAuraEnemy()
@@ -20,11 +23,31 @@ AAuraEnemy::AAuraEnemy()
 	AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+}
+
+void AAuraEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (!HasAuthority()) return; //AI는 서버에서만 신경쓰면 되므로 HasAuthority
+	
+	AuraAIController = Cast<AAuraAIController> (NewController);
+	AuraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);//AIController에 있는 블랙보드에 우리가 설정해놓은 비헤이비어 트리를 가져와 거기에 설정된 블랙보드 애셋으로 블랙보드를 초기화한다. 
+	AuraAIController->RunBehaviorTree(BehaviorTree);
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false); //HitReacting부울 변수를 처음에 false로 초기화하기 위해
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), CharacterClass != ECharacterClass::Warrior);
+
 }
 
 void AAuraEnemy::HighlightActor()
@@ -58,17 +81,17 @@ void AAuraEnemy::BeginPlay()
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	InitAbilityActorInfo();
-	if (HasAuthority())
+	if (HasAuthority()) //서버에서 어빌리티들 넣어주기
 	{
 		UAuraAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);//da에 있는 공통 어빌리티 초기화
 	}
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject()))
 	{
-		AuraUserWidget->SetWidgetController(this); //위젯 컨트롤러 set
+		AuraUserWidget->SetWidgetController(this); //위젯 컨트롤러 set. Enemy는 머리 위에 HealthBar를 띄워 놓을 것이므로 컨트롤러를 Enemy자체로 설정한다.
 	} //바인딩 할 컨트롤러 Set
 	
 	
-	//값 초기화 된 후 여기서 위젯 바인딩 시키기
+	//값 초기화 된 후 여기서 위젯 바인딩 시키기, OverlayWidgetController의 BindCallbacksToDependencies역할
 	if (const UAuraAttributeSet* AuraAS = Cast<UAuraAttributeSet>(AttributeSet))
 	{
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetHealthAttribute()).AddLambda(
@@ -88,7 +111,7 @@ void AAuraEnemy::BeginPlay()
 			this,
 			&AAuraEnemy::HitReactTagChanged
 		);
-		//Attribute변할 때의 델리게이트에 바인딩 시킨 후 첫 값 브로드캐스팅
+		//Attribute변할 때의 델리게이트에 바인딩 시킨 후 첫 값 브로드캐스팅, AuraCharacter의 BroadcastInitialValue역할
 		OnHealthChanged.Broadcast(AuraAS->GetHealth());
 		OnMaxHealthChanged.Broadcast(AuraAS->GetMaxHealth());
 	}
@@ -99,6 +122,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 {
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed =  bHitReacting ? 0.f : BaseWalkSpeed;// 한 방 맞으면 0.f 아니면 평소 속도
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 }
 
 void AAuraEnemy::InitAbilityActorInfo()

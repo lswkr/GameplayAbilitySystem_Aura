@@ -185,6 +185,16 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	//Double damage plus a bonus if critical hit
 	Damage = bCriticalHit ? Damage * 2.f + SourceCriticalHitDamage: Damage;
 	
-	const FGameplayModifierEvaluatedData EvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
-	OutExecutionOutput.AddOutputModifier(EvaluatedData);
+	const FGameplayModifierEvaluatedData EvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage); //IncomingDamage의 값을 최종적으로 계산이 끝난 Damage값으로 만들어 적용하는 것, GetIncomingDamageAttribute로 IncomingDamage의 어트리뷰트를 얻어 AttributeSet에서 IncomingDamage어트리뷰트 if문에서 활용한다.
+	/*
+	* 	FGameplayModifierEvaluatedData(const FGameplayAttribute& InAttribute, TEnumAsByte<EGameplayModOp::Type> InModOp, float InMagnitude, FActiveGameplayEffectHandle InHandle = FActiveGameplayEffectHandle())
+		: Attribute(InAttribute)
+		, ModifierOp(InModOp)
+		, Magnitude(InMagnitude)
+		, Handle(InHandle)
+		, IsValid(true)
+	{
+	}
+	 */
+	OutExecutionOutput.AddOutputModifier(EvaluatedData);//PostGameplayEffectExecute함수에 보낼 변수
 }

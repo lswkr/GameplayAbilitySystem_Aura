@@ -63,8 +63,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			for (const FGameplayTag& Tag : AssetTags)
 			{
 				//"A.1".MatchesTag("A") will return True, "A".MatchesTag("A.1") will return False
-				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message")); 
-				if (Tag.MatchesTag(MessageTag)) // "Message"들만 골라 내도록
+				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message")); // "Message"들만 골라 내도록
+				if (Tag.MatchesTag(MessageTag)) 
 				{
 					const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);//이 데이터로 이펙트 적용 시 브로드 캐스트할 것
 					MessageWidgetRowDelegate.Broadcast(*Row);

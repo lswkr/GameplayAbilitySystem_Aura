@@ -136,7 +136,7 @@ void UAuraAttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData& Old
 void UAuraAttributeSet::SetEffectProperties(const struct FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
 {
 
-	// Data에 많은 것이 저장되어있고 여기 있는 것들로 다 활용한다.
+	// Data에 많은 것이 저장되어있고 이 Data에 있는 것들로 Props를 다 설정한다.
 	// Source = causer of the effect. Target = Target of the effect(Owner of this AS)
 	Props.EffectContextHandle = Data.EffectSpec.GetContext(); 
 	Props.SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
@@ -187,7 +187,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 	{
 		SetMana(FMath::Clamp(GetMana(),0.f,GetMaxMana()));
 	}
-	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute()) //어떤 Attribute가 바뀌었는지 확인하는 부분. //이 meta attribute는 서버에서 업데이트->그래서 아래에서 뭔가를 하면 서버에서만 일어남->클라에 데미지를 보여주기 위해 위젯을 플레이어 컨트롤러에 띄울 것임
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())//이 meta attribute는 서버에서 업데이트->그래서 아래에서 뭔가를 하면 서버에서만 일어남->클라에 데미지를 보여주기 위해 위젯을 플레이어 컨트롤러에 띄울 것임
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();//locally 캐시 시켜놓는다.
 		SetIncomingDamage(0);//그 뒤 0으로 만든다.
@@ -210,9 +210,17 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 			else
 			{
 				FGameplayTagContainer TagContainer;
+				//ASC에 넣을 HitReact태그 넣고
 				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
-				//특정 태그 있으면 실행시키도록
-				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);//클라이언트에서부를 수 있고 predictively하게 active
+				//HitReact 실행시키도록
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+				/*
+				* bool TryActivateAbilitiesByTag(const FGameplayTagContainer& GameplayTagContainer, bool bAllowRemoteActivation = true);
+				* 
+				* Attempts to activate every gameplay ability that matches the given tag and DoesAbilitySatisfyTagRequirements().
+				* Returns true if anything attempts to activate. Can activate more than one ability and the ability may fail later.
+				* If bAllowRemoteActivation is true, it will remotely activate local/server abilities, if false it will only try to locally activate abilities.
+				*/
 			}
 
 			
@@ -220,19 +228,10 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 			const bool bCriticalHit = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
 			
 			ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCriticalHit);
-			
-			
 		}
 	}
 
 	//props의 모든 변수가 유효할지 안 할지 모르므로 check를 잘 해줘야 한다. ASC가 제대로 되지 않은 액터가 걸릴 수 있으므로 무조건적인 어설트는 하면 안 된다.
-
-	// if (Data.EvaluatedData.Attribute == GetHealthAttribute())
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("Health from GetHealth: %f"), GetHealth());
-	// 	UE_LOG(LogTemp, Warning, TEXT("Magnitude: %f"), Data.EvaluatedData.Magnitude); // 얼마나 바뀌는지
-	// }
-	
 }
 
 void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit) const
