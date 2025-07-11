@@ -62,8 +62,8 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {	//UAuraProjectileSpell에서 SpawnProjectile할 때 서버가 아니면 빠른 Return을 하도록 했다.DamageEffectSpecHandle를 거기서 만들기에 클라에서는 DamageEffectSpecHandle가 Notvalid하다. 그래서 if문에 isValid를 추가해준다
 
-	if (OtherActor == GetOwner()) return;//162강 Q&A 답변
-	if (DamageEffectSpecHandle.Data.IsValid() && DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor) // 쏜 놈이랑 맞은 놈이 같으면 아무것도 안 하도록(뭔가를 하면 닿은 뒤 파괴되므로)
+	//if (OtherActor == GetOwner()) return;//162강 Q&A 답변
+	if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor) // 쏜 놈이랑 맞은 놈이 같으면 아무것도 안 하도록(뭔가를 하면 닿은 뒤 파괴되므로)
 	{
 		return;
 	}
