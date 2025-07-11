@@ -64,6 +64,16 @@ void AAuraEnemy::UnHighlightActor()
 	Weapon->SetRenderCustomDepth(false);
 }
 
+void AAuraEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
+AActor* AAuraEnemy::GetCombatTarget_Implementation()
+{
+	return CombatTarget;
+}
+
 int32 AAuraEnemy::GetPlayerLevel()
 {
 	return Level;
@@ -83,7 +93,7 @@ void AAuraEnemy::BeginPlay()
 	InitAbilityActorInfo();
 	if (HasAuthority()) //서버에서 어빌리티들 넣어주기
 	{
-		UAuraAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);//da에 있는 공통 어빌리티 초기화
+		UAuraAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent, CharacterClass);//da에 있는 공통 어빌리티 초기화
 	}
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject()))
 	{
@@ -122,7 +132,11 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 {
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed =  bHitReacting ? 0.f : BaseWalkSpeed;// 한 방 맞으면 0.f 아니면 평소 속도
-	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	if (AuraAIController && AuraAIController->GetBlackboardComponent())//AIController가 클라이언트에 없으므로 null 오류 발생 가능하기에 if문 추가.
+	{
+		AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+
+	}
 }
 
 void AAuraEnemy::InitAbilityActorInfo()

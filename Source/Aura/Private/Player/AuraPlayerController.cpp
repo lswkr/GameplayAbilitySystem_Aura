@@ -162,8 +162,11 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 				{
 					Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);//스플라인에 포인트 넣기
 				}
-				CachedDestination =NavPath->PathPoints[NavPath->PathPoints.Num()-1];//마지막 점을 CachedDestination으로 만들어 장애물 우회할 때 오류 방지
-				bAutoRunning = true;
+				if (NavPath->PathPoints.Num()>0)
+				{
+					CachedDestination =NavPath->PathPoints[NavPath->PathPoints.Num()-1];//마지막 점을 CachedDestination으로 만들어 장애물 우회할 때 오류 방지
+					bAutoRunning = true;
+				}
 			}
 			
 		}

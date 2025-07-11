@@ -241,6 +241,11 @@ void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 		if (AAuraPlayerController* PC = Cast<AAuraPlayerController> (Props.SourceCharacter->Controller))
 		{
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
+			return;
+		}
+		if (AAuraPlayerController* PC = Cast<AAuraPlayerController> (Props.TargetCharacter->Controller)) //이걸 추가해야 주인공 본인이 맞을 때에도 Floating Text가 나옴
+		{
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
 	}
 }

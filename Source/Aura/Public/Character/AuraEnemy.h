@@ -29,6 +29,8 @@ public:
 	/*Enemy Interface*/
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
+	virtual void  SetCombatTarget_Implementation(AActor* InCombatTarget) override;
+	virtual AActor* GetCombatTarget_Implementation() override;
 	/*End Enemy Interface*/
 
 	/*Combat Interface*/
@@ -47,11 +49,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	bool bHitReacting = false;//태그 들어오면 HitReact, 아니면 안 하도록 설정되는 부울 변수, 비헤이비어 트리 같은데에서 사용하기 위해 멤버변수
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float BaseWalkSpeed = 250.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 5.f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	TObjectPtr<AActor> CombatTarget; //모션워핑할 때 돌아가야할 방향이 되는 Target
 	
 protected:
 	virtual void BeginPlay() override;
@@ -73,4 +78,5 @@ protected:
 	UPROPERTY()
 	TObjectPtr<AAuraAIController> AuraAIController;//possessedby에서 AuraController로 캐스팅 시켜준다.
 
+	
 };

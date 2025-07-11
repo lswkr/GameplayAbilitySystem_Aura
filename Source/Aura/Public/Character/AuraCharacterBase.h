@@ -25,11 +25,21 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
+	/* Combat Interface */
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override; //GA_HitReact에서 AnimMontage반환하는 함수
 	virtual void Die() override; //서버에서만 호출
-
+	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
+	virtual bool IsDead_Implementation() const override;
+	virtual AActor* GetAvatar_Implementation() override;
+	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+	/* End Combat Interface */
+	
 	UFUNCTION(NetMulticast, Reliable) //NetMulticast - 서버를 포함해 세션에 접속된 모든 컴퓨터에 실행시키는 RPC. Die가 메타 어트리뷰트 if문에서 발생하기에 서버에서만 호출되므로 클, 섭 다 보내기 위한 RPC
 	virtual void MulticastHandleDeath();
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	TArray<FTaggedMontage> AttackMontages;
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -39,8 +49,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName WeaponTipSocketName;
 
-	virtual FVector GetCombatSocketLocation() override;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName LeftHandSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName RightHandSocketName;
+
 	
+	bool bDead = false;
 
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
