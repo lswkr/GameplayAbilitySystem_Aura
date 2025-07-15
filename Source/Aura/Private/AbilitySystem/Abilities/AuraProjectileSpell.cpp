@@ -20,7 +20,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	
 }
 
-void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
+void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, bool bOverridePitch, float PitchOverride)
 {
 	//projectile을 서버에서 소환하고 싶고 레플리케이트시키고 싶음, 클라이언트는 레플리케이트버전을 가지고 노는 것
 	
@@ -28,23 +28,19 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 
 	if (!bIsServer) return; //서버 아니면 바로 return;
 
-	const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), FAuraGameplayTags::Get().Montage_Attack_Weapon);
+	const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), SocketTag);
 	FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
-	
-	if (GetOwningActorFromActorInfo() == nullptr)
+
+	if (bOverridePitch)
 	{
-		UE_LOG(LogTemp, Error, TEXT("OwningActor is Null"));
-	}
-	if (!Cast<APawn>(GetAvatarActorFromActorInfo()))//owningactor하면 playerstate라 pawn으로 안되는듯
-	{
-		UE_LOG(LogTemp, Error, TEXT("OwningActor cast is failed"));
-	
+		Rotation.Pitch = PitchOverride; // 던지는 각도 지정 
 	}
 	
 	FTransform SpawnTransform; //특정 소켓을 반환받아 그 소켓의 트랜스폼을 활용할 것임. CombatInterface활용, AuraCharacterBase에서 확인
 	SpawnTransform.SetLocation(SocketLocation);
-	//TODO: Set the Projectile Rotation
 	SpawnTransform.SetRotation(Rotation.Quaternion());
+
+	
 	AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(
 		ProjectileClass,
 		SpawnTransform,

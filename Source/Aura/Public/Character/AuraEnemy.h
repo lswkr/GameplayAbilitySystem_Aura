@@ -39,7 +39,7 @@ public:
 	/*End Combat Interface*/
 
 	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnHealthChanged;//오버레이 위젯 컨트롤러에 있는 것 사용
+	FOnAttributeChangedSignature OnHealthChanged;//오버레이 위젯 컨트롤러에 있는 델리게이트 FOnAttributeChangedSignature 사용
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnMaxHealthChanged;//오버레이 위젯 컨트롤러에 있는 것 사용

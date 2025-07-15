@@ -73,24 +73,3 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		}
 	);//람다 함수를 사용함으로써 굳이 콜백 함수를 만들 필요가 없다.
 }
-
-//
-// void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
-// {
-// 	OnHealthChanged.Broadcast(Data.NewValue); //Data: 브로드캐스트된 값
-// }
-//
-// void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
-// {
-// 	OnMaxHealthChanged.Broadcast(Data.NewValue);
-// }
-//
-// void UOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) const
-// {
-// 	OnManaChanged.Broadcast(Data.NewValue);
-// }
-//
-// void UOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) const
-// {
-// 	OnMaxManaChanged.Broadcast(Data.NewValue);
-// }

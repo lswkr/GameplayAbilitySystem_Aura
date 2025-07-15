@@ -249,7 +249,7 @@ void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 		}
 	}
 }
-void UAuraAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
+void UAuraAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const /* 네트워크를 통해 새 Health 값이 도착할 때 호출됨 */
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Health, OldHealth);// ASC가 값이 레플리케이트 됐다는 것을 알 수 있다.
 	//레플리케이트돼서 Health에 값이 적용되나 만약 값이 이상하면 OldHealth로 Rollback 된다.

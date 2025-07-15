@@ -92,7 +92,7 @@ void AAuraEnemy::Die()
 void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed; //설정된 BaseWalkSpeed값으로 MaxWalkSpeed를 조정하기 위해 BeginPlay에서 설정.
 	InitAbilityActorInfo();
 	if (HasAuthority()) //서버에서 어빌리티들 넣어주기
 	{

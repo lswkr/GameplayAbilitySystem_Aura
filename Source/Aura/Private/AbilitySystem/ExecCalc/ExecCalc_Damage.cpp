@@ -10,7 +10,7 @@
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
 
-struct AuraDamageStatics //blueprint나 relectionsystem에 노출하지 않는 구조체이므로 뭐 따로 매크로나 F두문자를 쓰지 않았다.
+struct AuraDamageStatics //blueprint나 reflection system에 노출되지 않는 구조체이므로 뭐 따로 매크로나 F두문자를 쓰지 않았다.
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor); //필요한 변수, 함수를 알아서 생성해 줌 
 	DECLARE_ATTRIBUTE_CAPTUREDEF(ArmorPenetration);
@@ -40,7 +40,7 @@ struct AuraDamageStatics //blueprint나 relectionsystem에 노출하지 않는 �
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, ArcaneResistance, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, PhysicalResistance, Target, false);
 
-		const FAuraGameplayTags& Tags =FAuraGameplayTags::Get();
+		const FAuraGameplayTags& Tags = FAuraGameplayTags::Get();
 		
 		TagsToCaptureDefs.Add(Tags.Attributes_Secondary_Armor, ArmorDef);
 		TagsToCaptureDefs.Add(Tags.Attributes_Secondary_ArmorPenetration, ArmorPenetrationDef);
@@ -111,7 +111,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		
 		const FGameplayEffectAttributeCaptureDefinition CaptureDef =AuraDamageStatics().TagsToCaptureDefs[ResistanceTag];
 
-		float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key);
+		float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key, false);//이 함수의 부울 변수는 값이 정해져있지 않을 때 경고를 주는 것이다. false로 하면 경고 안 준다.
 	
 		float Resistance =0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDef, EvaluationParameters, Resistance);
