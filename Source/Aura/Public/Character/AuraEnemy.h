@@ -6,7 +6,7 @@
 #include "Character/AuraCharacterBase.h"
 #include "Interaction/EnemyInterface.h"
 #include "UI/WidgetController/OverlayWidgetController.h" //별로 크지도 않은 파일이라 헤더파일에 가져와도 좋다.
-#include "AbilitySystem/Data/CharacterClassInfo.h"
+
 #include "AuraEnemy.generated.h"
 
 class UWidgetComponent;
@@ -34,7 +34,7 @@ public:
 	/*End Enemy Interface*/
 
 	/*Combat Interface*/
-	virtual int32 GetPlayerLevel() override;
+	virtual int32 GetPlayerLevel_Implementation() override;
 	virtual void Die() override;
 	/*End Combat Interface*/
 
@@ -66,8 +66,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	int32 Level = 1; //그냥 서버에만 있으면 되는 값이므로 굳이 Replicate할 필요없다.
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
-	ECharacterClass CharacterClass = ECharacterClass::Warrior; 
+	
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;

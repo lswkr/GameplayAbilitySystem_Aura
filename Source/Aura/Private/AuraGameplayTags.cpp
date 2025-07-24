@@ -166,6 +166,15 @@ void FAuraGameplayTags::InitializeNativeGameplayTags() //UAuraAssetManager에서
 		);
 
 	/*
+	 * Meta Attributes
+	 */
+	
+	GameplayTags.Attributes_Meta_IncomingXP = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Meta.IncomingXP"),
+		FString("Incoming XP Meta Attribute")
+		);
+	
+	/*
 	 * Map of Damage Types to Resistances
 	 * DamageType과 Attribute_Resistance 태그가 생성된 이후에 넣어주기.
 	 */

@@ -176,6 +176,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")//레플리케이트 되지 않는 값이라 RepNotify는 없다.
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingXP;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingXP);
 	
 	UFUNCTION()//rep notify함수라 UFUNCTION해줘야함
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
@@ -241,4 +245,5 @@ public:
 private:
 	void SetEffectProperties(const struct FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit) const;
+	void SendXPEvent(const FEffectProperties& Props);
 };

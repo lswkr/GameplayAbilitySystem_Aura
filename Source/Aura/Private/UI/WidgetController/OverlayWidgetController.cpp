@@ -6,6 +6,8 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "AbilitySystem/Data/LevelUpInfo.h"
+#include "Player/AuraPlayerState.h"
 
 
 void UOverlayWidgetController::BroadcastInitialValue() //OverlayWidgetController가 가지고 있는 모든 위젯에 브로드캐스팅(Overlay위젯 하나에 설정된 컨트롤러에 많은 다른 위젯들이 바인딩되어있다.)
@@ -23,6 +25,14 @@ void UOverlayWidgetController::BroadcastInitialValue() //OverlayWidgetController
 void UOverlayWidgetController::BindCallbacksToDependencies()
 //AuraHUD의 InitOverlay함수에서 WidgetController가 GetOverlayWidgetController함수를 통해 초기화됨. ->GetOverlayWidgetController함수를 호출한다.
 {
+	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState> (PlayerState);
+	AuraPlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);//델리게이트에 콜백 바인드 시킬꺼면 AuraPlayerState는 const면 안 된다.
+	AuraPlayerState->OnLevelChangedDelegate.AddLambda(
+		[this](int32 NewLevel)
+	{
+		OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+	}
+		);
 	const UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 	
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
@@ -109,3 +119,27 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UAuraAbilitySystemCo
 	});
 	AuraAbilitySystemComponent->ForEachAbility(BroadcastDelegate);
 }
+
+void UOverlayWidgetController::OnXPChanged(int32 NewXP) const
+{
+	const AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState> (PlayerState);//static_cast가 있어 캐스트 할 때마다 퍼포먼스 걱정할 필요 없음
+	const ULevelUpInfo* LevelUpInfo = AuraPlayerState->LevelUpInfo;
+	checkf(LevelUpInfo, TEXT("Unable to find LevelUpInfo. Please fill out AuraPlayerState Blueprint"));
+
+	const int32 Level = LevelUpInfo->FindLevelForXP(NewXP);
+	const int32 MaxLevel = LevelUpInfo->LevelUpInformation.Num();
+
+	if (Level <= MaxLevel && Level > 0)
+	{
+		const int32 LevelUpRequirement = LevelUpInfo->LevelUpInformation[Level].LevelUpRequirement;
+		const int32 PreviousLevelUpRequirement =LevelUpInfo->LevelUpInformation[Level-1].LevelUpRequirement;
+
+		const int32 DeltaLevelRequirement = LevelUpRequirement - PreviousLevelUpRequirement;
+		const int32 XPForThisLevel = NewXP - PreviousLevelUpRequirement;	//이전 레벨과 현 레벨 간의 차이가 채워야 하는 XP이므로
+
+		const float XPBarPercent = static_cast<float>(XPForThisLevel) / static_cast<float>(DeltaLevelRequirement);
+
+		OnXPPercentChangedDelegate.Broadcast(XPBarPercent);
+	}
+}
+
