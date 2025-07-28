@@ -34,7 +34,7 @@ class UAbilityInfo;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue); //Dynamic -블루프린트에서 이벤트를 할당하기 위해, multicast - 여러 블루프린트에게 전달하기 위해
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FAuraAbilityInfo&, Info);
+
 
 
 /**
@@ -65,9 +65,6 @@ public:
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Messages")
 	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
-	UPROPERTY(BlueprintAssignable,Category = "GAS|Messages")
-	FAbilityInfoSignature AbilityInfoDelegate;
-
 	UPROPERTY(BlueprintAssignable,Category = "GAS|XP")
 	FOnAttributeChangedSignature OnXPPercentChangedDelegate;
 
@@ -79,8 +76,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
-	TObjectPtr<UAbilityInfo>  AbilityInfo;
+
 	
 	// void HealthChanged(const FOnAttributeChangeData& Data) const; //ASC에서 값 바뀔 때 호출되는 델리게이트에 바인딩 시킬 함수
 	// void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
@@ -89,10 +85,8 @@ protected:
 
 	template <typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag Tag);
-
-	void OnInitializeStartupAbilities(UAuraAbilitySystemComponent* AuraAbilitySystemComponent);
-
-	void OnXPChanged(int32 NewXP) const;
+	
+	void OnXPChanged(int32 NewXP);
 };
 
 template <typename T>

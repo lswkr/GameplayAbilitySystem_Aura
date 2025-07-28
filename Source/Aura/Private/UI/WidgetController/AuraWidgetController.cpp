@@ -3,6 +3,12 @@
 
 #include "UI/WidgetController/AuraWidgetController.h"
 
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/AuraAttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
+#include "Player/AuraPlayerController.h"
+#include "Player/AuraPlayerState.h"
+
 void UAuraWidgetController::SetWidgetControllerParams(const FWidgetControllerParams& WCParams)
 {
 	PlayerController = WCParams.PlayerController;
@@ -17,4 +23,57 @@ void UAuraWidgetController::BroadcastInitialValue()
 
 void UAuraWidgetController::BindCallbacksToDependencies()
 {
+}
+
+void UAuraWidgetController::BroadcastAbilityInfo()
+{
+	//Get Information about all given abilities, look up their ability info, and broadcast it to widgets.
+	if (!GetAuraASC()->bStartupAbilitiesGiven) return; //어빌리티 안 주어져 있으면 빠른 return
+
+	//각 어빌리티에 다 바인드 할 수 있도록
+	FForEachAbility BroadcastDelegate;
+	BroadcastDelegate.BindLambda([this](const FGameplayAbilitySpec& AbilitySpec)
+	{
+		//need a way to figure out the ability tag for a given ability spec.
+		FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AuraAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
+		Info.InputTag = AuraAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
+		AbilityInfoDelegate.Broadcast(Info);
+	});
+	GetAuraASC()->ForEachAbility(BroadcastDelegate);
+}
+
+AAuraPlayerController* UAuraWidgetController::GetAuraPC()
+{
+	if (AuraPlayerController == nullptr)
+	{
+		AuraPlayerController = Cast<AAuraPlayerController>(PlayerController);
+	}
+	return AuraPlayerController;
+}
+
+AAuraPlayerState* UAuraWidgetController::GetAuraPS()
+{
+	if (AuraPlayerState == nullptr)
+	{
+		AuraPlayerState = Cast<AAuraPlayerState>(PlayerState);
+	}
+	return AuraPlayerState;
+}
+
+UAuraAbilitySystemComponent* UAuraWidgetController::GetAuraASC()
+{
+	if (AuraAbilitySystemComponent == nullptr)
+	{
+		AuraAbilitySystemComponent = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+	}
+	return AuraAbilitySystemComponent;
+}
+
+UAuraAttributeSet* UAuraWidgetController::GetAuraAS()
+{
+	if (AuraAttributeSet == nullptr)
+	{
+		AuraAttributeSet = Cast<UAuraAttributeSet>(AttributeSet);
+	}
+	return AuraAttributeSet;
 }

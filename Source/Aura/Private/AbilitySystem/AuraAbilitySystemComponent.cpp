@@ -43,7 +43,7 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		
 	}
 	bStartupAbilitiesGiven = true;
-	AbilitiesGivenDelegate.Broadcast(this);//일단 서버에서만 됨.
+	AbilitiesGivenDelegate.Broadcast();//일단 서버에서만 됨.
 	
 }
 
@@ -162,7 +162,7 @@ void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
 	if (!bStartupAbilitiesGiven) //서버에서 한 번만 할 것이고 리플리케이트 되지 않는다. //Activatable 한 Abilities가 레플리케이트 될 때마다 델리게이트 하지 않을 것이다. 클라이언트도 이제 스킬에 따라 SpellGlobe 위젯이 업데이트된다
 	{
 		bStartupAbilitiesGiven = true;
-		AbilitiesGivenDelegate.Broadcast(this);	
+		AbilitiesGivenDelegate.Broadcast();	
 	}
 }
 
