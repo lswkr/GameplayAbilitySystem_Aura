@@ -6,6 +6,8 @@
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "Player/AuraPlayerState.h"
 
 void UAttributeMenuWidgetController::BroadcastInitialValue()
 {
@@ -18,7 +20,8 @@ void UAttributeMenuWidgetController::BroadcastInitialValue()
 		BroadcastAttributeInfo(Pair.Key, Pair.Value());//Value그 자체가 함수이므로 ()해야됨
 	}
 	
-	
+	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState> (PlayerState);
+	AttributePointsChangedDelegate.Broadcast(AuraPlayerState->GetAttributePoints());
 	
 }
 
@@ -36,10 +39,24 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 			}
 			);//값 바뀔 때 호출할 델리게이트
 	}
+	
+	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState> (PlayerState);
+	AuraPlayerState->OnAttributePointsChangedDelegate.AddLambda(
+		[this](int32 Points)
+		{
+			AttributePointsChangedDelegate.Broadcast(Points);//OnAttributePointsChangedDelegate와 이름 안 겹치게 만든 델리게이트
+		}
+	);
+}
+
+void UAttributeMenuWidgetController::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	UAuraAbilitySystemComponent* AuraASC = CastChecked<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+	AuraASC->UpgradeAttribute(AttributeTag);
 }
 
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag,
-	const FGameplayAttribute& Attribute) const
+                                                            const FGameplayAttribute& Attribute) const
 {
 	FAuraAttributeInfo Info = AttributeInfo->FindAttributeInfoForTag(AttributeTag);
 	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet);

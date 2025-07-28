@@ -27,6 +27,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FAttributeInfoSignature AttributeInfoDelegate;
 
+	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+	FOnPlayerStatChangedSignature AttributePointsChangedDelegate;//델리게이트 이름 안 겹치게 조심
+
+	UFUNCTION(BlueprintCallable)
+	void UpgradeAttribute(const FGameplayTag& AttributeTag);
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAttributeInfo> AttributeInfo;

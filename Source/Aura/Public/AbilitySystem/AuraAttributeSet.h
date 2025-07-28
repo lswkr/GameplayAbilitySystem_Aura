@@ -71,6 +71,7 @@ public:
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
+	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue);
 //	TMap<FGameplayTag, FAttributeSignature> TagsToAttributes;
 	/*
 	 * FunctionPointer로 원하는 함수의 Pointer를 가져올 수 있다. 그러니 FAttributeSignature말고 그냥 Attribute에 해당하는 함수를 가져오도록 Map을 만들면된다.
@@ -246,4 +247,7 @@ private:
 	void SetEffectProperties(const struct FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit) const;
 	void SendXPEvent(const FEffectProperties& Props);
+	bool bTopOffHealth = false; //레벨업 할 때 맥스로 채우도록 하는 부울 변수
+	bool bTopOffMana = false;
+	
 };
