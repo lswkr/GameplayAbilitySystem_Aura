@@ -138,7 +138,7 @@ void UAuraAttributeSet::SetEffectProperties(const struct FGameplayEffectModCallb
 
 	// Data에 많은 것이 저장되어있고 이 Data에 있는 것들로 Props를 다 설정한다.
 	// Source = causer of the effect. Target = Target of the effect(Owner of this AS)
-	Props.EffectContextHandle = Data.EffectSpec.GetContext(); 
+	Props.EffectContextHandle = Data.EffectSpec.GetContext();
 	Props.SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 
 	if (IsValid(Props.SourceASC) && Props.SourceASC->AbilityActorInfo.IsValid() && Props.SourceASC->AbilityActorInfo->AvatarActor.IsValid())

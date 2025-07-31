@@ -12,6 +12,7 @@ class UAttributeMenuWidgetController;
 class UAbilitySystemComponent;
 class USpellMenuWidgetController;
 class AAuraHUD;
+class UAbilityInfo;
 struct FWidgetControllerParams;
 
 /**
@@ -44,6 +45,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|CharacterClassDefaults")
 	static UCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldContextObject);//ExecCalc_Damage에서 커프테이블 가져올 때 사용하는 함수
 
+	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|CharacterClassDefaults")
+	static UAbilityInfo* GetAbilityInfo(const UObject* WorldContextObject);
+	
 	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|GameplayEffect")
 	static bool IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle);
 

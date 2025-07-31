@@ -76,7 +76,7 @@ public:
 	/*
 	 * FunctionPointer로 원하는 함수의 Pointer를 가져올 수 있다. 그러니 FAttributeSignature말고 그냥 Attribute에 해당하는 함수를 가져오도록 Map을 만들면된다.
 	 */
-	TMap<FGameplayTag,  TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes; //태그에 해당하는 함수를 저장하는 Map, FGameplayAttribute반환 , 인수는 없는 함수에 대한 포인터
+	TMap<FGameplayTag,  TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes; //태그에 해당하는 함수를 저장하는 Map, FGameplayAttribute를 반환하고 인수는 없는 함수에 대한 포인터
 	//TStaticFuncPtr<float(int32, float, int32)> 이런식으로 반환타입(인수 타입1,2..)의 함수에 대해 해당 템플릿을 활용할 수 있다.
 	/*
 	 * Primary Attribute
