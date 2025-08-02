@@ -1,6 +1,7 @@
 ﻿
 #include "AuraAbilityTypes.h"
 
+
 bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 {
 	uint32 RepBits = 0;
@@ -36,17 +37,46 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 		{
 			RepBits |= 1 << 6;
 		}
-		if (bIsBlockedHit) //우리가 만든 부울 변수
+		//Customized from here
+		if (bIsBlockedHit) 
 		{
 			RepBits |= 1 << 7;
 		}
-		if (bIsCriticalHit) //우리가 만든 부울 변수
+		if (bIsCriticalHit)
 		{
 			RepBits |= 1 << 8;
 		}
+		if (bIsSuccessfulDebuff)
+		{
+			RepBits |= 1 << 9;
+		}
+		if (DebuffDamage > 0.f) 
+		{
+			RepBits |= 1 << 10;
+		}
+		if (DebuffDuration > 0.f) 
+		{
+			RepBits |= 1 << 11;
+		}
+		if (DebuffFrequency > 0.f) 
+		{
+			RepBits |= 1 << 12;
+		}
+		if (DamageType.IsValid()) 
+		{
+			RepBits |= 1 << 13;
+		}
+		if (!DeathImpulse.IsZero()) 
+		{
+			RepBits |= 1 << 14;
+		}
+		if (!KnockbackForce.IsZero())
+		{
+			RepBits |= 1 << 15;
+		}
 	}
 
-	Ar.SerializeBits(&RepBits, 9);
+	Ar.SerializeBits(&RepBits, 15); // serialize할 만큼 숫자를 넣어줘야한다.
 
 	if (RepBits & (1 << 0))
 	{
@@ -98,6 +128,45 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 	{
 		Ar << bIsCriticalHit;
 	}
+	if (RepBits & (1 << 9))
+	{
+		Ar << bIsSuccessfulDebuff;
+	}
+
+	if (RepBits & (1 << 10))
+	{
+		Ar << DebuffDamage;
+	}
+
+	if (RepBits & (1 << 11))
+	{
+		Ar << DebuffDuration;
+	}
+	if (RepBits & (1 << 12))
+	{
+		Ar << DebuffFrequency;
+	}
+	if (RepBits & (1 << 13))
+	{
+		if (Ar.IsLoading())
+		{
+			if (!DamageType.IsValid())
+			{
+				DamageType = TSharedPtr<FGameplayTag>(new FGameplayTag());
+			}
+		}
+		DamageType->NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 14))
+	{
+		DeathImpulse.NetSerialize(Ar, Map, bOutSuccess);//벡터로 Netserialize하는 방법
+	}
+
+	if (RepBits & (1 << 15))
+	{
+		KnockbackForce.NetSerialize(Ar, Map, bOutSuccess);//벡터로 Netserialize하는 방법
+	}
+
 	
 	if (Ar.IsLoading())
 	{

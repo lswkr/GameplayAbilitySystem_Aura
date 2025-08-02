@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "GameplayEffectTypes.h"
+#include "AuraAbilityTypes.h"
 #include "AuraProjectile.generated.h"
 
 class USphereComponent;
@@ -23,12 +23,14 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
-	UPROPERTY(BlueprintReadWrite,meta = (ExposeOnSpawn = true) )//블루프린트에서 설정하기 위해 BlueprintReadWrite, ExposeOnSpawn: spawn할 때 핀 보이도록
-	FGameplayEffectSpecHandle DamageEffectSpecHandle;
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = true))//블루프린트에서 설정하기 위해 BlueprintReadWrite, ExposeOnSpawn: spawn할 때 핀 보이도록
+	FDamageEffectParams DamageEffectParams;
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
+
+	void OnHit();
 	
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);

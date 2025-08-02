@@ -167,7 +167,7 @@ void AAuraCharacter::InitAbilityActorInfo()
 	Cast<UAuraAbilitySystemComponent> (AuraPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet(); //AuraAbilitySystemComponent 클래스의 EffectApplied 함수를 Binding시키기 위해 한 번 호출
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent(); //초기화 마친 PlayerState의 ASC를 캐릭터에 설정
 	AttributeSet=AuraPlayerState->GetAttributeSet();
-
+	OnASCRegistered.Broadcast(AbilitySystemComponent);
 	//아래 컨트롤러가 null인지 체크해서 assert를 해야하나? 클라이언트는 각각의 컨트롤러만 신경쓰면 됨. null이면 진행은 시키지 않되 crash내지 않는다. 
 	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
 	{

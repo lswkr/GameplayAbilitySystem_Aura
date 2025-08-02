@@ -79,13 +79,13 @@ int32 AAuraEnemy::GetPlayerLevel_Implementation()
 	return Level;
 }
 
-void AAuraEnemy::Die()
+void AAuraEnemy::Die(const FVector& DeathImpulse)
 {
 	SetLifeSpan(LifeSpan);
 
 	if (AuraAIController) AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	
-	Super::Die();
+	Super::Die(DeathImpulse);
 }
 
 
@@ -151,7 +151,7 @@ void AAuraEnemy::InitAbilityActorInfo()
 	{
 		InitializeDefaultAttributes(); //이 함수 돌리기 전에 블루프린트에서 어트리뷰트를 다 정해놓아야 함
 	}
-	
+	OnASCRegistered.Broadcast(AbilitySystemComponent);//CharacterBase에 넣을 수도 있으나 Super잘못하면 망가질 수 있어서 그냥 이렇게 Enemy, Aura 둘 다 따로 구현
 }
 
 void AAuraEnemy::InitializeDefaultAttributes() const
