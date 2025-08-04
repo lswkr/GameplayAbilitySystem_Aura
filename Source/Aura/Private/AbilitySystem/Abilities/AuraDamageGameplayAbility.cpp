@@ -18,7 +18,7 @@ void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor) const
 {
 	FDamageEffectParams Params;
-	Params.WorldContextObject = GetAvatarActorFromActorInfo();//TargetActor가 null일 수 있으므로 넣지 않는다
+	Params.WorldContextObject = GetAvatarActorFromActorInfo();//TargetActor가 null일 수 있으므로 넣지 않고 GetAvatarActorFromActorInfo를 넣는다.
 	Params.DamageGameplayEffectClass = DamageEffectClass;
 	Params.SourceAbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
 	Params.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor); //GetAbilitySystemComponent는 인수가 nullptr이면 nullptr을 반환한다.
@@ -41,6 +41,11 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 		Params.KnockbackForce = ToTarget * KnockbackForceMagnitude;
 	}
 	return Params;
+}
+
+float UAuraDamageGameplayAbility::GetDamageAtLevel() const 
+{
+	return Damage.GetValueAtLevel(GetAbilityLevel());
 }
 
 FTaggedMontage UAuraDamageGameplayAbility::GetRandomTaggedMontageFromArray(const TArray<FTaggedMontage>& TaggedMontages) const

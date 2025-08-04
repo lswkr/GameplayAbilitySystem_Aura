@@ -26,6 +26,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = true))//블루프린트에서 설정하기 위해 BlueprintReadWrite, ExposeOnSpawn: spawn할 때 핀 보이도록
 	FDamageEffectParams DamageEffectParams;
 	
+	UPROPERTY()
+	TObjectPtr<USceneComponent> HomingTargetSceneComponent; //AuraProjectileComponent가 파괴되면 이것도 파괴되고 가비지 콜렉트 되도록 UPRPERTY()를 함
 protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;

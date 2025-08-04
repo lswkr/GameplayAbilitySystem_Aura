@@ -41,7 +41,7 @@ void AAuraProjectile::BeginPlay()
 	Super::BeginPlay();
 	
 	SetLifeSpan(LifeSpan);
-	
+	SetReplicateMovement(true);//컴파일 타임에 해결되지 않아서 여기에 호출, 클래스 디폴트에 이동 리플리케이트를 true로 설정 따로 해줘야함
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AAuraProjectile::OnSphereOverlap);
 	
 	LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound,GetRootComponent()); //sound컴포넌트를 반환하는 함수.->이후에 사운드를 멈출 수 있다. 액터에 붙지 않고 월드에 떠돌아 다니는 그런 특이한 컴포넌트이다.
@@ -49,6 +49,11 @@ void AAuraProjectile::BeginPlay()
 
 void AAuraProjectile::Destroyed() 
 {
+	if (LoopingSoundComponent)
+	{
+		LoopingSoundComponent->Stop();//일단 파괴되면 어디가 됐건 소리도 멈추고 파괴되도록
+		LoopingSoundComponent->DestroyComponent();
+	}
 	if (!bHit && !HasAuthority())
 	{
 		OnHit();
@@ -61,7 +66,11 @@ void AAuraProjectile::OnHit()
 	//destroy가 먼저 레플리케이트되어 Destroyed함수가 클라의OnSphereOverlap이전에 호출될 때, bhit은 false && 이건 클라에서만 관련됨(!HasAuthority)
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-	if (LoopingSoundComponent) LoopingSoundComponent->Stop();
+	if (LoopingSoundComponent)
+	{
+		LoopingSoundComponent->Stop();
+		LoopingSoundComponent->DestroyComponent();
+	}
 	bHit = true;
 }
 
@@ -69,7 +78,8 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {	//UAuraProjectileSpell에서 SpawnProjectile할 때 서버가 아니면 빠른 Return을 하도록 했다.DamageEffectSpecHandle를 거기서 만들기에 클라에서는 DamageEffectSpecHandle가 Notvalid하다. 그래서 if문에 isValid를 추가해준다
 
-	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();
+	if (DamageEffectParams.SourceAbilitySystemComponent == nullptr) return;
+	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();//SpawnProjectiles안에 DamageEffectParams를 생성하고 이를 여기에서 활용한다.
 	//if (OtherActor == GetOwner()) return;//162강 Q&A 답변
 	if (SourceAvatarActor == OtherActor) return;// 쏜 놈이랑 맞은 놈이 같으면 아무것도 안 하도록(뭔가를 하면 닿은 뒤 파괴되므로)
 
@@ -83,7 +93,7 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		//Projectile의 DamageGameplayEffect로 인한 Attribute의 변화는 그냥 서버에서만 해주면 알아서 레플리케이트 된다. 서버측에서만 해주자.
 		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
-			DamageEffectParams.TargetAbilitySystemComponent = TargetASC;
+			DamageEffectParams.TargetAbilitySystemComponent = TargetASC;//SpawnProjectiles에서 DamageEffectParams의 TargetActor가 nullptr로 들어온다. 그래서 여기에서 설정해준다. 
 			//이펙트 적용되기 전에 DeathImpulse를 줘야 함
 			const FVector DeathImpulse = GetActorForwardVector() * DamageEffectParams.DeathImpulseMagnitude;
 			DamageEffectParams.DeathImpulse = DeathImpulse;
@@ -98,7 +108,7 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 				const FVector KnockbackForce = KnockbackDirection * DamageEffectParams.KnockbackForceMagnitude;
 				DamageEffectParams.KnockbackForce = KnockbackForce;
 			}
-			UAuraAbilitySystemLibrary::ApplyDamageEffect(DamageEffectParams);
+			UAuraAbilitySystemLibrary::ApplyDamageEffect(DamageEffectParams);//DamageEffectParams완성해서 Effect를 적용
 		}
 		Destroy();
 	}

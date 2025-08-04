@@ -11,9 +11,10 @@
 class UNiagaraSystem;
 class UAnimMontage;
 class UAbilitySystemComponent;
+class USkeltalMeshComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor); //블루프린트에서도 활용해야 편하므로 Dynamic
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeathSignature, AActor*, DeadActor);//블루프린트에서도 활용해야 편하므로 Dynamic
 
 USTRUCT(BlueprintType)
 struct FTaggedMontage
@@ -64,6 +65,7 @@ public:
 	UAnimMontage* GetHitReactMontage();
 
 	virtual void Die(const FVector& DeathImpulse) = 0;
+	virtual FOnDeathSignature& GetOnDeathDelegate() = 0;  //인터페이스를 구현하는 캐릭터의 실제 델리게이트를 반환해야하므로 카피를 반환하지 않도록 &가 반환값
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsDead() const;
@@ -89,6 +91,18 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	ECharacterClass GetCharacterClass();
 	
-	virtual FOnASCRegistered GetOnASCRegisteredDelegate() = 0;
-	virtual FOnDeath GetOnDeathDelegate() = 0;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetInShockLoop(bool bInLoop);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	USkeletalMeshComponent* GetWeapon();//무기 컴포넌트 받아서 소켓 찾은 뒤 나이아가라 게임플레이 큐에 활용 
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsBeingShocked() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetIsBeingShocked(bool bInShock);
+
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() = 0;
+
 };

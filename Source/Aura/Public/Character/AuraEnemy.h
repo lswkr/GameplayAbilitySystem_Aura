@@ -49,8 +49,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	bool bHitReacting = false;//태그 들어오면 HitReact, 아니면 안 하도록 설정되는 부울 변수, 비헤이비어 트리 같은데에서 사용하기 위해 멤버변수
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
-	float BaseWalkSpeed = 250.f;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 5.f;
@@ -62,7 +61,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
 	virtual void InitializeDefaultAttributes() const override;
-	
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	int32 Level = 1; //그냥 서버에만 있으면 되는 값이므로 굳이 Replicate할 필요없다.
 

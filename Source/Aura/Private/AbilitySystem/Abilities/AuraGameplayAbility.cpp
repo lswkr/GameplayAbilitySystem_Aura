@@ -47,5 +47,4 @@ float UAuraGameplayAbility::GetCooldown(float InLevel) const
 		CooldownEffect->DurationMagnitude.GetStaticMagnitudeIfPossible(InLevel, Cooldown);
 	}
 	return Cooldown;
-	return 0.f;
 }

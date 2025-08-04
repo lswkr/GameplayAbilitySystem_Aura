@@ -220,9 +220,7 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 
 		if (bFatal) //죽을 때
 		{
-			//TODO: Use Death Impulse
-
-
+			//Use Death Impulse
 			ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
 			if (CombatInterface)
 			{
@@ -234,18 +232,22 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 		}
 		else//살아있을 때
 		{
-			FGameplayTagContainer TagContainer;
-			//ASC에 넣을 HitReact태그 넣고
-			TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
-			//HitReact 실행시키도록
-			/*
-			* bool TryActivateAbilitiesByTag(const FGameplayTagContainer& GameplayTagContainer, bool bAllowRemoteActivation = true);
-			*
-			* Attempts to activate every gameplay ability that matches the given tag and DoesAbilitySatisfyTagRequirements().
-			* Returns true if anything attempts to activate. Can activate more than one ability and the ability may fail later.
-			* If bAllowRemoteActivation is true, it will remotely activate local/server abilities, if false it will only try to locally activate abilities.
-			*/
-			Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			if (Props.TargetCharacter->Implements<UCombatInterface>() &&  !ICombatInterface::Execute_IsBeingShocked(Props.TargetCharacter))
+			{
+				FGameplayTagContainer TagContainer;
+				//ASC에 넣을 HitReact태그 넣고
+				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
+				//HitReact 실행시키도록
+				/*
+				* bool TryActivateAbilitiesByTag(const FGameplayTagContainer& GameplayTagContainer, bool bAllowRemoteActivation = true);
+				*
+				* Attempts to activate every gameplay ability that matches the given tag and DoesAbilitySatisfyTagRequirements().
+				* Returns true if anything attempts to activate. Can activate more than one ability and the ability may fail later.
+				* If bAllowRemoteActivation is true, it will remotely activate local/server abilities, if false it will only try to locally activate abilities.
+				*/
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+			
 			
 			const FVector& KnockbackForce = UAuraAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle);
 			if (!KnockbackForce.IsNearlyZero(1.f))
@@ -288,10 +290,21 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Props)
 	//Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
 	
 	//수정본start//
+	const FGameplayTag DebuffTag = GameplayTags.DamageTypesToDebuffs[DamageType];
+
 	FInheritedTagContainer InheritedTagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& AssetTagsComponent = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
-	InheritedTagContainer.Added.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);//여기가 GameplayEffect 블루프린트에서 설정하던 그 태그 덩어리다.
-	InheritedTagContainer.CombinedTags.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+	InheritedTagContainer.Added.AddTag(DebuffTag);//여기가 GameplayEffect 블루프린트에서 설정하던 그 태그 덩어리다.
+	InheritedTagContainer.CombinedTags.AddTag(DebuffTag);
+	AssetTagsComponent.SetAndApplyTargetTagChanges(InheritedTagContainer);
+	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun))
+	{
+		InheritedTagContainer.Added.AddTag(GameplayTags.Player_Block_CursorTrace);
+		InheritedTagContainer.Added.AddTag(GameplayTags.Player_Block_InputHeld);
+		InheritedTagContainer.Added.AddTag(GameplayTags.Player_Block_InputPressed);
+		InheritedTagContainer.Added.AddTag(GameplayTags.Player_Block_InputReleased);
+
+	}
 	AssetTagsComponent.SetAndApplyTargetTagChanges(InheritedTagContainer);
 	//수정본end//
 

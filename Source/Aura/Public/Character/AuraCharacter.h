@@ -46,6 +46,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent; //레벨업 하는 캐릭터가 Aura밖에 없으므로 여기에만 있음
+
+	virtual void OnRep_Stunned() override;
+	virtual void OnRep_Burned() override;
 private:
 
 	UPROPERTY(VisibleAnywhere)

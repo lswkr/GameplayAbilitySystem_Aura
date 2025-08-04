@@ -14,6 +14,7 @@
 #include "Interaction/EnemyInterface.h"
 #include "GameFramework/Character.h"
 #include "UI/Widget/DamageTextComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -63,7 +64,15 @@ void AAuraPlayerController::AutoRun()
 
 void AAuraPlayerController::CursorTrace() //매 프레임마다 호출
 {
-	
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
+	{
+		if (LastActor) LastActor->UnHighlightActor();
+		if (ThisActor) ThisActor->UnHighlightActor();
+		LastActor = nullptr;
+		ThisActor = nullptr;
+		return;
+	}//Cursor_Trace태그 가지는 중일 때에는 아무것도 하지 않도록(예를 들어 공격 같은 것 하는 도중)
+
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit); //SimpleCollision만 하기 위해 false
 	if (!CursorHit.bBlockingHit) return;
 
@@ -129,15 +138,24 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
 //	GEngine->AddOnScreenDebugMessage(1,3.f, FColor::Red, *InputTag.ToString());
 
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
+	{	//GA에서 block_Pressed 라는 'Activation Owned Tags'가 있으면 멈추도록
+		return;
+	}
 	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
 		bTargeting = ThisActor? true: false;
 		bAutoRunning = false;
 	}
+	if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
 }
 
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputReleased))
+	{
+		return;
+	}
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB)) //LMB아닌 경우 InputTag에 해당하는 Ability를 발동시키고 싶다.
 	{
 		if (GetASC())//Set이 안 되어 nullptr가 되는경우 대비
@@ -168,7 +186,11 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					bAutoRunning = true;
 				}
 			}
-			
+			if (!GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed)) //Pressed가 아닐 때에만 생기도록
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+			}
+
 		}
 		//Released됐으면 초기화
 		FollowTime = 0;
@@ -179,6 +201,10 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputHeld))
+	{
+		return;
+	}
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB)) //LMB아닌 경우 InputTag에 해당하는 Ability를 발동시키고 싶다.
 	{
 		if (GetASC())//Set이 안 되어 nullptr가 되는경우 대비

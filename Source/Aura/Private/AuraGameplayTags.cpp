@@ -376,6 +376,31 @@ void FAuraGameplayTags::InitializeNativeGameplayTags() //UAuraAssetManager에서
 	FName("Montage.Attack.4"),
 	FString("Attack 4")
 	);
+
+	/*
+	 * Player Tags
+	 */
+
+	GameplayTags.Player_Block_InputPressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputPressed"),
+		FString("Block Input Pressed Callback for input")
+	);
+
+	GameplayTags.Player_Block_InputHeld = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputHeld"),
+		FString("Block Input Held Callback for input")
+	);
+
+	GameplayTags.Player_Block_InputReleased = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputReleased"),
+		FString("Block Input Released Callback for input")
+	);
+
+	GameplayTags.Player_Block_CursorTrace = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.CursorTrace"),
+		FString("Block tracing under the cursor")
+	);
+	
 	
 	
 }

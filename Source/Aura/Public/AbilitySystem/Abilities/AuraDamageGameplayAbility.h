@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintPure)//이걸 블루프린트에서 호출해서 knockback같은 것이 Melee에서도 일어나도록
 	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
 
+	UFUNCTION(BlueprintPure)
+	float GetDamageAtLevel() const;
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
