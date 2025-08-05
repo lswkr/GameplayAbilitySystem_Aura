@@ -1,0 +1,48 @@
+// Copyright LeeSeungwon
+
+
+#include "AbilitySystem/Passive/PassiveNiagaraComponent.h"
+
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Interaction/CombatInterface.h"
+
+UPassiveNiagaraComponent::UPassiveNiagaraComponent()
+{
+	bAutoActivate = false;
+}
+
+void UPassiveNiagaraComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner())))
+	{
+		AuraASC->ActivatePassiveEffect.AddUObject(this, &UPassiveNiagaraComponent::OnPassiveActivate);
+	}
+	else if(ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwner()))
+	{
+		CombatInterface->GetOnASCRegisteredDelegate().AddLambda([this](UAbilitySystemComponent* AuraASC) {
+			if (UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner())))
+			{
+				AuraASC->ActivatePassiveEffect.AddUObject(this, &UPassiveNiagaraComponent::OnPassiveActivate);
+			}
+		}
+		);
+	}
+}
+
+void UPassiveNiagaraComponent::OnPassiveActivate(const FGameplayTag& AbilityTag, bool bActivate)
+{
+	if (AbilityTag.MatchesTagExact(PassiveSpellTag))
+	{
+		if (bActivate && !IsActive())//액티브 중이면 Active더 안 건드리기 위해
+		{
+			Activate();
+		}
+		else
+		{
+			Deactivate();
+		}
+	}
+}
