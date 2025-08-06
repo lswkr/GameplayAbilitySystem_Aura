@@ -9,6 +9,8 @@
 #include "Interaction/CombatInterface.h"
 #include "AuraCharacterBase.generated.h"
 
+
+
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
@@ -27,6 +29,7 @@ public:
 	AAuraCharacterBase();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;//레플리케이트 하는 변수들 설정
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	
 	//아래 두 개를 AuraCharacter에서 직접 호출하면 Aura는 이걸 직접가지고 있지 않으므로 nullptr을 반환
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -49,11 +52,13 @@ public:
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
 	virtual void SetIsBeingShocked_Implementation(bool bInShock) override;
 	virtual bool IsBeingShocked_Implementation() const override;
+	virtual FOnDamageSignature& GetOnDamageSignature() override;
 	/* End Combat Interface */
 	
 	FOnASCRegistered OnASCRegistered;
 	FOnDeathSignature OnDeathDelegate;
-
+	FOnDamageSignature OnDamageDelegate;
+	
 	UFUNCTION(NetMulticast, Reliable) //NetMulticast - 서버를 포함해 세션에 접속된 모든 컴퓨터에 실행시키는 RPC. Die가 메타 어트리뷰트 if문에서 발생하기에 서버에서만 호출되므로 클, 섭 다 보내기 위한 RPC
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
 

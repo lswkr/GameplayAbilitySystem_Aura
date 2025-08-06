@@ -15,6 +15,9 @@
 #include "GameFramework/Character.h"
 #include "UI/Widget/DamageTextComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Actor/MagicCircle.h"
+#include "Aura/Aura.h"
+#include "Components/DecalComponent.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -27,6 +30,7 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 	CursorTrace();
 	AutoRun();
+	UpdateMagicCircleLocation();
 }
 
 void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)//클라 캐릭터입장에서, 서버에서 호출되지만 클라이언트에서 execute->클라에서 보임
@@ -62,6 +66,15 @@ void AAuraPlayerController::AutoRun()
 	}
 }
 
+void AAuraPlayerController::UpdateMagicCircleLocation()
+{
+	//커서의 매 프레임마다 위치 찾기(Tick 함수에서 활용)
+	if (IsValid(MagicCircle))
+	{
+		MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
+	}
+}
+
 void AAuraPlayerController::CursorTrace() //매 프레임마다 호출
 {
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
@@ -72,8 +85,9 @@ void AAuraPlayerController::CursorTrace() //매 프레임마다 호출
 		ThisActor = nullptr;
 		return;
 	}//Cursor_Trace태그 가지는 중일 때에는 아무것도 하지 않도록(예를 들어 공격 같은 것 하는 도중)
-
-	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit); //SimpleCollision만 하기 위해 false
+	
+	const ECollisionChannel TraceChannel = IsValid(MagicCircle)? ECC_ExcludePlayers : ECC_Visibility; //마법진에 들어갈 때, 아닐 때 
+	GetHitResultUnderCursor(TraceChannel, false, CursorHit); //SimpleCollision만 하기 위해 false
 	if (!CursorHit.bBlockingHit) return;
 
 	LastActor = ThisActor;
@@ -252,6 +266,27 @@ UAuraAbilitySystemComponent* AAuraPlayerController::GetASC()
 	return AuraAbilitySystemComponent;
 }
 
+
+void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
+{
+	//없으면 새로 만들어서 저장
+	if (!IsValid(MagicCircle)) 
+	{
+		MagicCircle = GetWorld()->SpawnActor<AMagicCircle>(MagicCircleClass);
+		if (DecalMaterial)
+		{
+			MagicCircle->MagicCircleDecal->SetMaterial(0, DecalMaterial);
+		}
+	}
+}
+
+void AAuraPlayerController::HideMagicCircle()
+{
+	if (IsValid(MagicCircle))
+	{
+		MagicCircle->Destroy();
+	}
+}
 
 void AAuraPlayerController::BeginPlay()
 {

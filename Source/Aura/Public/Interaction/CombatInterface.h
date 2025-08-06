@@ -11,10 +11,11 @@
 class UNiagaraSystem;
 class UAnimMontage;
 class UAbilitySystemComponent;
-class USkeltalMeshComponent;
+class USkeletalMeshComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeathSignature, AActor*, DeadActor);//블루프린트에서도 활용해야 편하므로 Dynamic
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDamageSignature, float /*DamageAmount*/);
 
 USTRUCT(BlueprintType)
 struct FTaggedMontage
@@ -66,6 +67,7 @@ public:
 
 	virtual void Die(const FVector& DeathImpulse) = 0;
 	virtual FOnDeathSignature& GetOnDeathDelegate() = 0;  //인터페이스를 구현하는 캐릭터의 실제 델리게이트를 반환해야하므로 카피를 반환하지 않도록 &가 반환값
+	virtual FOnDamageSignature& GetOnDamageSignature() = 0;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsDead() const;

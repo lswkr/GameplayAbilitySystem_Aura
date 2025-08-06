@@ -20,8 +20,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CauseDamage(AActor* TargetActor);
 
-	UFUNCTION(BlueprintPure)//ÀÌ°É ºí·çÇÁ¸°Æ®¿¡¼­ È£ÃâÇØ¼­ knockback°°Àº °ÍÀÌ Melee¿¡¼­µµ ÀÏ¾î³ªµµ·Ï
-	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
+	UFUNCTION(BlueprintPure)//ï¿½Ì°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ø¼ï¿½ knockbackï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Meleeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¾î³ªï¿½ï¿½ï¿½ï¿½
+	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(
+		AActor* TargetActor = nullptr,
+		FVector InRadialDamageOrigin = FVector::ZeroVector,
+		bool bOverrideKnockbackDirection = false,
+		FVector KnockbackDirectionOverride = FVector::ZeroVector,
+		bool bOverrideDeathImpulse = false,
+		FVector DeathImpulseOverride = FVector::ZeroVector,
+		bool bOverridePitch = false,
+		float PitchOverride = 0.f
+		) const;
 
 	UFUNCTION(BlueprintPure)
 	float GetDamageAtLevel() const;
@@ -41,13 +50,13 @@ protected:
 	float DebuffChance = 20.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	float DebuffDamage = 5.f;//µð¹öÇÁ µ¿¾È Àû¿ëµÇ´Â µ¥¹ÌÁö 
+	float DebuffDamage = 5.f;//ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	float DebuffFrequency = 1.f;//µð¹öÇÁ µÇ´Â µ¿¾ÈÀÇ ÁÖ±â
+	float DebuffFrequency = 1.f;//ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	float DebuffDuration = 5.f; //µð¹öÇÁ ½Ã°£
+	float DebuffDuration = 5.f; //ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float DeathImpulseMagnitude = 1000.f;
@@ -57,6 +66,16 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float KnockbackChance = 0.f;
+
+	//ApplyRadialDamageWithFalloffí•¨ìˆ˜ í™œìš©í•˜ê¸° ìœ„í•œ ë³€ìˆ˜ë“¤
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	bool bIsRadialDamage = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
+	float RadialDamageInnerRadius = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
+	float RadialDamageOuterRadius = 0.f;
 
 	UFUNCTION(BlueprintPure)
 	FTaggedMontage GetRandomTaggedMontageFromArray(const TArray<FTaggedMontage>& TaggedMontages) const;

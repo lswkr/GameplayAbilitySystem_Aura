@@ -9,6 +9,7 @@
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 struct AuraDamageStatics //blueprint나 reflection system에 노출되지 않는 구조체이므로 뭐 따로 매크로나 F두문자를 쓰지 않았다.
 {
@@ -110,6 +111,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	//const변수면 const가 아닌 멤버변수는 사용할 수 없다.
 	
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 	
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
@@ -136,13 +138,53 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		const FGameplayEffectAttributeCaptureDefinition CaptureDef = TagsToCaptureDefs[ResistanceTag];
 
 		float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key, false);//이 함수의 부울 변수는 값이 정해져있지 않을 때 경고를 주는 것이다. false로 하면 경고 안 준다.
-	
+
+		if (DamageTypeValue <=0.f)//데미지 0이면 아래 로직 할 필요 없음.
+		{
+			continue;
+		}
+		
 		float Resistance =0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDef, EvaluationParameters, Resistance);
 		Resistance = FMath::Clamp(Resistance,0.f, 100.f);	
 
 		DamageTypeValue *= (100.f - Resistance) / 100.f;
+
+		if (UAuraAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
+		{
+			// 1. override TakeDamage in AuraCharacterBase
+			// 2. Create Delegate OnDamageDelegate, broadcast damage received in TakeDamage
+			// 3. Bind to OnDamageDelegate on the Victim here
+			// 4. Call UGameplayStatics::ApplyRadialDamageWithFalloff to cause damage
+			//		(this will result in TakeDamage being called on the victim, which will then broadcast OnDamageDelegate)
+			// 5. In Lambda, set DamageTypeValue to the damage received from the broadcast.
+			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetAvatar))	//바인드
+			{
+				CombatInterface->GetOnDamageSignature().AddLambda([&](float DamageAmount)
+				{
+					DamageTypeValue = DamageAmount;	//CharacterBase에서 브로드캐스트하는 데미지, 래디얼데미지라면 초기화 되는 것임
+				});
+			}
+
+			
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				TargetAvatar,
+				DamageTypeValue,
+				0.f,
+				UAuraAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle),
+				UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle),
+				UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle),
+				1.f,
+				UDamageType::StaticClass(),
+				TArray<AActor*>(),
+				SourceAvatar,
+				nullptr//컨트롤러 필요 없어서 nullptr
+				);
+		}
+		
 		Damage += DamageTypeValue;
+
+		
 	}
 	
 	//Capture Block Chance on Target, and determine if there was a successful Block
@@ -154,10 +196,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	const bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
 
-	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
-	// FGameplayEffectContext* Context = EffectContextHandle.Get();
-	// FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(Context);//static_cast는 *를 필요로 한다.
-	// AuraContext->SetIsBlockedHit(bBlocked);
+	
 
 	UAuraAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);//위의comment와 같은 행동
 	

@@ -72,7 +72,7 @@ void UAuraAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Inp
 			if (AbilitySpec.IsActive())
 			{
 				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
-			}
+			}//InvokeReplicatedEvent: 이 명령어 없으면 wait input press이런 ability Task는 작동하지 않는다.
 		}
 	}
 }
