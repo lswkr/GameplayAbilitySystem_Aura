@@ -133,6 +133,49 @@ int32 UAuraAbilitySystemLibrary::GetXPRewardForClassAndLevel(const UObject* Worl
 	return static_cast<int32>(XPReward); //만약 게임의 XP가 float인 점이 중요하다면 함수를 float반환형으로 바꾸도록 
 }
 
+void UAuraAbilitySystemLibrary::SetIsRadialDamageEffectParams(FDamageEffectParams& DamageEffectParams, bool bIsRadial, float InnerRadius, float OuterRadius, FVector Origin)
+{
+	DamageEffectParams.bIsRadialDamage = bIsRadial;
+	DamageEffectParams.RadialDamageInnerRadius = InnerRadius;
+	DamageEffectParams.RadialDamageOuterRadius = OuterRadius;
+	DamageEffectParams.RadialDamageOrigin = Origin;
+}
+
+void UAuraAbilitySystemLibrary::SetKnockbackDirection(FDamageEffectParams& DamageEffectParams,
+	FVector KnockbackDirection, float Magnitude)
+{
+	KnockbackDirection.Normalize();
+	if (Magnitude==0.f)
+	{
+		DamageEffectParams.KnockbackForce = KnockbackDirection*DamageEffectParams.KnockbackForceMagnitude;		
+	}
+	else
+	{
+		DamageEffectParams.KnockbackForce = KnockbackDirection*Magnitude;
+	}
+
+}
+
+void UAuraAbilitySystemLibrary::SetDeathImpulseDirection(FDamageEffectParams& DamageEffectParams,
+	FVector ImpulseDirection, float Magnitude)
+{
+	ImpulseDirection.Normalize();
+	if (Magnitude == 0.f)
+	{
+		DamageEffectParams.DeathImpulse = ImpulseDirection*DamageEffectParams.DeathImpulseMagnitude;
+	}
+	else
+	{
+		DamageEffectParams.DeathImpulse = ImpulseDirection*Magnitude;
+	}
+}
+
+void UAuraAbilitySystemLibrary::SetTargetEffectParamsASC(FDamageEffectParams& DamageEffectParams,
+	UAbilitySystemComponent* InASC)
+{
+	DamageEffectParams.TargetAbilitySystemComponent = InASC;
+}
+
 UCharacterClassInfo* UAuraAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
 	const AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase> (UGameplayStatics::GetGameMode(WorldContextObject));

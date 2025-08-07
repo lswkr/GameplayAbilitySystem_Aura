@@ -22,10 +22,11 @@ void UPassiveNiagaraComponent::BeginPlay()
 	}
 	else if(ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwner()))
 	{
-		CombatInterface->GetOnASCRegisteredDelegate().AddLambda([this](UAbilitySystemComponent* AuraASC) {
+		CombatInterface->GetOnASCRegisteredDelegate().AddLambda([this](UAbilitySystemComponent* ASC) {
 			if (UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner())))
 			{
 				AuraASC->ActivatePassiveEffect.AddUObject(this, &UPassiveNiagaraComponent::OnPassiveActivate);
+				
 			}
 		}
 		);
@@ -36,7 +37,7 @@ void UPassiveNiagaraComponent::OnPassiveActivate(const FGameplayTag& AbilityTag,
 {
 	if (AbilityTag.MatchesTagExact(PassiveSpellTag))
 	{
-		if (bActivate && !IsActive())//¾×Æ¼ºê ÁßÀÌ¸é Active´õ ¾È °Çµå¸®±â À§ÇØ
+		if (bActivate && !IsActive())//ï¿½ï¿½Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ Activeï¿½ï¿½ ï¿½ï¿½ ï¿½Çµå¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		{
 			Activate();
 		}

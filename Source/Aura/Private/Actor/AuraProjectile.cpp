@@ -35,6 +35,15 @@ AAuraProjectile::AAuraProjectile()
 }
 
 
+bool AAuraProjectile::IsValidOverlap(AActor* OtherActor)
+{
+	if (DamageEffectParams.SourceAbilitySystemComponent == nullptr) return false;
+	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();//SpawnProjectiles안에 DamageEffectParams를 생성하고 이를 여기에서 활용한다.
+	//if (OtherActor == GetOwner()) return;//162강 Q&A 답변
+	if (SourceAvatarActor == OtherActor) return false;// 쏜 놈이랑 맞은 놈이 같으면 아무것도 안 하도록(뭔가를 하면 닿은 뒤 파괴되므로)
+	if (!UAuraAbilitySystemLibrary::IsNotFriend(SourceAvatarActor, OtherActor)) return false;
+	return true;
+}
 
 void AAuraProjectile::BeginPlay()
 {
@@ -78,15 +87,8 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {	//UAuraProjectileSpell에서 SpawnProjectile할 때 서버가 아니면 빠른 Return을 하도록 했다.DamageEffectSpecHandle를 거기서 만들기에 클라에서는 DamageEffectSpecHandle가 Notvalid하다. 그래서 if문에 isValid를 추가해준다
 
-	if (DamageEffectParams.SourceAbilitySystemComponent == nullptr) return;
-	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();//SpawnProjectiles안에 DamageEffectParams를 생성하고 이를 여기에서 활용한다.
-	//if (OtherActor == GetOwner()) return;//162강 Q&A 답변
-	if (SourceAvatarActor == OtherActor) return;// 쏜 놈이랑 맞은 놈이 같으면 아무것도 안 하도록(뭔가를 하면 닿은 뒤 파괴되므로)
-
-	if (!UAuraAbilitySystemLibrary::IsNotFriend(SourceAvatarActor, OtherActor)) return;
-	
+	if (!IsValidOverlap(OtherActor)) return;
 	if (!bHit) OnHit(); //이렇게 해서 클라에서 두 번 소리가 나는 것을 방지
-
 	
 	if (HasAuthority())
 	{

@@ -282,6 +282,11 @@ void FAuraGameplayTags::InitializeNativeGameplayTags() //UAuraAssetManager에서
 	FName("Abilities.Fire.FireBolt"),
 	FString("FireBolt Ability Tag")
 	);
+	
+	GameplayTags.Abilities_Fire_FireBlast= UGameplayTagsManager::Get().AddNativeGameplayTag(
+    	FName("Abilities.Fire.FireBlast"),
+    	FString("FireBlast Ability Tag")
+    	);
 
 	GameplayTags.Abilities_Lightning_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Abilities.Lightning.Electrocute"),
@@ -424,6 +429,12 @@ void FAuraGameplayTags::InitializeNativeGameplayTags() //UAuraAssetManager에서
 		FString("Block tracing under the cursor")
 	);
 	
-	
+	/*
+	 * Gameplay Cues
+	 */
+	GameplayTags.GameplayCue_FireBlast = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("GameplayCue.FireBlast"),
+	FString("FireBlast GameplayCue Tag")
+	);
 	
 }
