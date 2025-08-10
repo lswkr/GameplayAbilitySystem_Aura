@@ -29,9 +29,9 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 	GetAuraPS()->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);//델리게이트에 콜백 바인드 시킬꺼면 AuraPlayerState는 const면 안 된다.
 	GetAuraPS()->OnLevelChangedDelegate.AddLambda(
-		[this](int32 NewLevel)
+		[this](int32 NewLevel, bool bLevelUp)
 	{
-		OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+		OnPlayerLevelChangedDelegate.Broadcast(NewLevel, bLevelUp);
 	}
 		);
 	

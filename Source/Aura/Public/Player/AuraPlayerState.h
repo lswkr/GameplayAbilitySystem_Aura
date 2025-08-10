@@ -12,6 +12,8 @@ class UAttributeSet;
 class ULevelUpInfo;
 
 DECLARE_MULTICAST_DELEGATE_OneParam (FOnPlayerStatChanged, int32/*StatValue*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams (FOnLevelChanged, int32/*StatValue*/, bool /*bLevelUp*/);
+
 /**
  * 
  */
@@ -30,7 +32,7 @@ public:
 	TObjectPtr<ULevelUpInfo> LevelUpInfo;
 	
 	FOnPlayerStatChanged OnXPChangedDelegate;
-	FOnPlayerStatChanged OnLevelChangedDelegate;
+	FOnLevelChanged OnLevelChangedDelegate;
 	FOnPlayerStatChanged OnAttributePointsChangedDelegate;
 	FOnPlayerStatChanged OnSpellPointsChangedDelegate;
 	
@@ -43,9 +45,11 @@ public:
 	void AddToXP(int32 InXP);
 	void AddToAttributePoints(int32 InPoints);
 	void AddToSpellPoints(int32 InPoints);
+	
 	void SetLevel(int32 InLevel);
 	void SetXP(int32 InXP);
-	
+	void SetAttributePoints(int32 InPoints);
+	void SetSpellPoints(int32 InPoints);
 protected:
 	UPROPERTY(VisibleAnywhere)//PlayerState블루프린트에서 볼 수 있도록 Visibleanywhere로 설정
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -60,13 +64,13 @@ private:
 	int32 Level = 1; //replicate될 때마다 보일 수 있도록 GetLifetimeReplicatedProps활용, Aura만 사용, Enemy의 경우는 따로 가지도록 
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_XP)
-	int32 XP = 1;
+	int32 XP = 0;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_AttributePoints)
 	int32 AttributePoints = 0;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_SpellPoints)
-	int32 SpellPoints = 1;
+	int32 SpellPoints = 0;
 
 	UFUNCTION() //RepNotify 할 수 있도록 UFUNCTION붙이기
 	void OnRep_Level(int32 OldLevel);

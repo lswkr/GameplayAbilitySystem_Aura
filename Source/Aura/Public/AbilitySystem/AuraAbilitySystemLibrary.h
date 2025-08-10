@@ -14,6 +14,8 @@ class UAbilitySystemComponent;
 class USpellMenuWidgetController;
 class AAuraHUD;
 class UAbilityInfo;
+class ULoadScreenSaveGame;
+
 struct FWidgetControllerParams;
 
 /**
@@ -50,6 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|CharacterClassDefaults")
 	static void InitializeDefaultAttribute(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* ASC);//게임모드 가져오려면 ContextObject필요 & 캐릭터 클래스와 레벨을 바탕으로 & ASC에 Initialize GE를 적용하기 위해 ->input변수를 저걸로
 
+	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|CharacterClassDefaults")
+	static void InitializeDefaultAttributesFromSaveData(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ULoadScreenSaveGame* SaveGame);
+	
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|CharacterClassDefaults")
 	static void GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ECharacterClass CharacterClass);
 

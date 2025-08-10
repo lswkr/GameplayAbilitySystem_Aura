@@ -14,7 +14,7 @@ class UPlayerInterface : public UInterface
 };
 
 /**
- * 
+ * 컨트롤 캐릭터에 대한 인터페이스
  */
 class AURA_API IPlayerInterface
 {
@@ -57,8 +57,11 @@ public:
 	void LevelUp();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);//AAuraCharacter���� ���
+	void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);//AAuraCharacter���� ���
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void HideMagicCircle();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SaveProgress(const FName& CheckpointTag);
 };

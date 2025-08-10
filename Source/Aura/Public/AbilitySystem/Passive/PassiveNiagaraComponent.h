@@ -7,10 +7,11 @@
 #include "GameplayTagContainer.h"
 #include "PassiveNiagaraComponent.generated.h"
 
+class UAuraAbilitySystemComponent;
 /**
  * 
  */
-//µ¨¸®°ÔÀÌÆ® ¿À¸é ÀÚµ¿À¸·Î Àç»ý/Á¤Áö µÇµµ·Ï.(ASC¿¡¼­ µ¨¸®°ÔÀÌÆ® ¸¸µé¾î³õÀ½)
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½Çµï¿½ï¿½ï¿½.(ASCï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 UCLASS()
 class AURA_API UPassiveNiagaraComponent : public UNiagaraComponent
 {
@@ -25,4 +26,5 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void OnPassiveActivate(const FGameplayTag& AbilityTag, bool bActivate);
+	void ActivateIfEquipped(UAuraAbilitySystemComponent* AuraASC);
 };
