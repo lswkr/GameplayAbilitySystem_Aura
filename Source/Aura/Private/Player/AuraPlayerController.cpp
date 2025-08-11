@@ -18,6 +18,7 @@
 #include "Actor/MagicCircle.h"
 #include "Aura/Aura.h"
 #include "Components/DecalComponent.h"
+#include "Interaction/HighlightInterface.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -75,12 +76,29 @@ void AAuraPlayerController::UpdateMagicCircleLocation()
 	}
 }
 
+void AAuraPlayerController::HighlightActor(AActor* InActor)
+{
+	if (IsValid(InActor) &&InActor->Implements<UHighlightInterface>())
+	{
+		IHighlightInterface::Execute_HighlightActor(InActor);
+	}
+}
+
+void AAuraPlayerController::UnHighlightActor(AActor* InActor)
+{
+	if (IsValid(InActor) &&InActor->Implements<UHighlightInterface>())
+	{
+		IHighlightInterface::Execute_UnHighlightActor(InActor);
+	}
+}
+
 void AAuraPlayerController::CursorTrace() //매 프레임마다 호출
 {
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
 	{
-		if (LastActor) LastActor->UnHighlightActor();
-		if (ThisActor) ThisActor->UnHighlightActor();
+		UnHighlightActor(LastActor);
+		UnHighlightActor(ThisActor);
+		
 		LastActor = nullptr;
 		ThisActor = nullptr;
 		return;
@@ -91,75 +109,43 @@ void AAuraPlayerController::CursorTrace() //매 프레임마다 호출
 	if (!CursorHit.bBlockingHit) return;
 
 	LastActor = ThisActor;
-	ThisActor = CursorHit.GetActor();//TScriptInterface<IEnemyInterface>하면 Cast필요없이 바로 이렇게 할 수 있다.
-
-	/*
-	 * Line Trace from Cursor. There are several scenarios:
-	 * A. LastActor is null && ThisActor is null
-	 *		-Do Nothing(벽이나 다른 것들, 에너미 아닌 것들에 걸렸으므로)
-	 * B. LastActor is null && ThisActor is Valid
-	 *		-Highlight ThisActor(처음으로 hover된 경우이므로)
-	 * C. LastActor is Valid && ThisActor is null
-	 *		-UnHighlight LastActor(더 이상 hover하지 않으므로)
-	 *
-	 * D. Both Actors are valid, but LastActor != ThisActor
-	 *		-UnHighlight LastActor and Highlight ThisActor(다른 놈으로 옮겨갔을 때)
-	 * E. Both Actors are valid and are the same actor
-	 *		-Do Nothing(계속 같은 놈 Hover중이므로)
-	 */
-	// if (LastActor == nullptr)
-	// {
-	// 	if (ThisActor != nullptr)
-	// 	{
-	// 		//Case B
-	// 		ThisActor->HighlightActor();
-	// 	}
-	// 	else
-	// 	{
-	// 		//Case A Both are null, do nothing
-	// 	}
-	// }
-	// else //LastActor is valid
-	// {
-	// 	if (ThisActor == nullptr) 
-	// 	{
-	// 		//Case C
-	// 		LastActor->UnHighlightActor();
-	// 	}
-	// 	else // both actors are valid
-	// 	{
-	// 		if (LastActor != ThisActor)
-	// 		{
-	// 			//Case D
-	// 			LastActor->UnHighlightActor();
-	// 			ThisActor->HighlightActor();
-	// 		}
-	// 		else
-	// 		{
-	// 			//Case E - Do Nothing
-	// 		}
-	// 	}
-	// }
+	if (IsValid(CursorHit.GetActor()) && CursorHit.GetActor()->Implements<UHighlightInterface>()) //ThisActor가 AActor* 이므로 인터페이스 구현여부만 보는 것
+	{
+		ThisActor = CursorHit.GetActor();
+	}
+	else//닿은 대상이 Highlight인터페이스를 구현하지 않았다면
+	{
+		ThisActor = nullptr;
+	}
+		
+	
 	if (LastActor != ThisActor)
 	{
-		if (LastActor) LastActor->UnHighlightActor();
-		if (ThisActor) ThisActor->HighlightActor();
-	}//위 코드 리팩토링
-	
+		UnHighlightActor(LastActor);
+		HighlightActor(ThisActor);
+	}
 }
+
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-//	GEngine->AddOnScreenDebugMessage(1,3.f, FColor::Red, *InputTag.ToString());
-
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
 	{	//GA에서 block_Pressed 라는 'Activation Owned Tags'가 있으면 멈추도록
 		return;
 	}
 	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		bTargeting = ThisActor? true: false;
-		bAutoRunning = false;
+		if (IsValid(ThisActor))
+		{
+			TargetingStatus = ThisActor->Implements<UEnemyInterface>()? ETargetingStatus::TargetingEnemy: ETargetingStatus::TargetingNonEnemy;//ThisActor는 이 시점에서는 null이 아닌 경우에만 오게 됨
+			
+		}
+		else
+		{
+			TargetingStatus = ETargetingStatus::NotTargeting;
+		}
+		bAutoRunning = false;//Actor가 있건 없건 누르면 AutoRunning은 끝나야 함. 
+		
 	}
 	if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
 }
@@ -181,11 +167,20 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	
 	if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag); //released됐다고 알려줌
 	
-	if (!bTargeting && !bShiftKeyDown) //마우스 뗀 상태에서는 targeting하거나 shiftkey누른 상태가 아니면 shortpressthreshold를 측정할 필요 없다.
+	if (TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown) //마우스 뗀 상태에서는 targeting하거나 shiftkey누른 상태가 아니면 shortpressthreshold를 측정할 필요 없다.
 	{
 		const APawn* ControlledPawn = GetPawn();
 		if (FollowTime <= ShortPressThreshold && ControlledPawn)//FollowTime: AbilityInputTagHeld 함수에서 모아지고 있는 시간
 		{
+			if (IsValid(ThisActor) && ThisActor->Implements<UHighlightInterface>()) //적은 이 인터페이스 구현해서 적용됨
+			{
+				IHighlightInterface::Execute_SetMoveToLocation(ThisActor, CachedDestination);
+			}
+			else if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed)) //Pressed가 아닐 때에만 생기도록
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+			}
+			
 			if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
 			{
 				Spline->ClearSplinePoints();//위치 Point 받기 전에 일단 배열 비우기
@@ -200,15 +195,12 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					bAutoRunning = true;
 				}
 			}
-			if (!GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed)) //Pressed가 아닐 때에만 생기도록
-			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
-			}
+			
 
 		}
 		//Released됐으면 초기화
 		FollowTime = 0;
-		bTargeting = false;
+		TargetingStatus = ETargetingStatus::NotTargeting;
 	}
 
 }
@@ -228,7 +220,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 		return;
 	}
 	
-	if (bTargeting || bShiftKeyDown) //LMB이고 Targeting이면(Enemy에 마우스를 갖다대고 있는 상태이면), 또는 shift key가 눌러져있는 상태이면
+	if (TargetingStatus == ETargetingStatus::TargetingEnemy || bShiftKeyDown) //LMB이고 Targeting이면(Enemy에 마우스를 갖다대고 있는 상태이면), 또는 shift key가 눌러져있는 상태이면
 	{
 		if (GetASC())
 		{

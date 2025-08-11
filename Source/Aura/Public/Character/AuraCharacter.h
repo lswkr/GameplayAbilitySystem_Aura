@@ -45,8 +45,14 @@ public:
 	
 	/*Combat Interface*/
 	virtual int32 GetPlayerLevel_Implementation() override;
+	virtual void Die(const FVector& DeathImpulse) override;
 	/*End Combat Interface*/
 
+	UPROPERTY(EditDefaultsOnly)
+	float DeathTime = 5.f;
+
+	FTimerHandle DeathTimer;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent; //레벨업 하는 캐릭터가 Aura밖에 없으므로 여기에만 있음
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/AuraCharacterBase.h"
 #include "Interaction/EnemyInterface.h"
+#include "Interaction/HighlightInterface.h"
 #include "UI/WidgetController/OverlayWidgetController.h" //별로 크지도 않은 파일이라 헤더파일에 가져와도 좋다.
 
 #include "AuraEnemy.generated.h"
@@ -17,7 +18,7 @@ class AAuraAIController;
  * 
  */
 UCLASS()
-class AURA_API AAuraEnemy : public AAuraCharacterBase, public IEnemyInterface
+class AURA_API AAuraEnemy : public AAuraCharacterBase, public IEnemyInterface, public IHighlightInterface
 {
 	GENERATED_BODY()
 	
@@ -26,16 +27,17 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 	
-	/*Enemy Interface*/
-	virtual void HighlightActor() override;
-	virtual void UnHighlightActor() override;
-	virtual void  SetCombatTarget_Implementation(AActor* InCombatTarget) override;
-	virtual AActor* GetCombatTarget_Implementation() override;
-	/*End Enemy Interface*/
+	/*Highlight Interface*/
+	virtual void HighlightActor_Implementation() override;
+	virtual void UnHighlightActor_Implementation() override;
+	virtual void SetMoveToLocation_Implementation(FVector& OutDestination) override;
+	/*End Highlight Interface*/
 
 	/*Combat Interface*/
 	virtual int32 GetPlayerLevel_Implementation() override;
 	virtual void Die(const FVector& DeathImpulse) override;
+	virtual void  SetCombatTarget_Implementation(AActor* InCombatTarget) override;
+	virtual AActor* GetCombatTarget_Implementation() override;
 	/*End Combat Interface*/
 
 	UPROPERTY(BlueprintAssignable)
@@ -49,14 +51,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	bool bHitReacting = false;//태그 들어오면 HitReact, 아니면 안 하도록 설정되는 부울 변수, 비헤이비어 트리 같은데에서 사용하기 위해 멤버변수
 
-
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 5.f;
-
+	
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 	TObjectPtr<AActor> CombatTarget; //모션워핑할 때 돌아가야할 방향이 되는 Target
-	
+
+	void SetLevel(int32 InLevel) {Level = InLevel; }
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
@@ -77,5 +78,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<AAuraAIController> AuraAIController;//possessedby에서 AuraController로 캐스팅 시켜준다.
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpawnLoot();
 	
 };

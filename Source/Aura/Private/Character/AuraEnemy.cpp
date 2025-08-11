@@ -35,6 +35,11 @@ AAuraEnemy::AAuraEnemy()
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
 
+	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	GetMesh()->MarkRenderStateDirty();
+	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	Weapon->MarkRenderStateDirty();
+	
 	BaseWalkSpeed = 250.f;
 }
 
@@ -52,18 +57,22 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 
 }
 
-void AAuraEnemy::HighlightActor()
+void AAuraEnemy::HighlightActor_Implementation()
 {
 	GetMesh()->SetRenderCustomDepth(true);
-	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 	Weapon->SetRenderCustomDepth(true); //어차피 캐릭터에 딸려 있는 놈이므로 함께 null일테고 함께 valid할 것이므로 같이 해도 된다.
-	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 }
 
-void AAuraEnemy::UnHighlightActor()
+void AAuraEnemy::UnHighlightActor_Implementation()
 {
 	GetMesh()->SetRenderCustomDepth(false);
 	Weapon->SetRenderCustomDepth(false);
+}
+
+void AAuraEnemy::SetMoveToLocation_Implementation(FVector& OutDestination)
+{
+	//Do not change OutDestination
+	//적 인터페이스가 이 함수를 호출할 경우 아무 일도 일으키지 않도록
 }
 
 void AAuraEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
@@ -86,7 +95,7 @@ void AAuraEnemy::Die(const FVector& DeathImpulse)
 	SetLifeSpan(LifeSpan);
 
 	if (AuraAIController) AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
-	
+	SpawnLoot();
 	Super::Die(DeathImpulse);
 }
 

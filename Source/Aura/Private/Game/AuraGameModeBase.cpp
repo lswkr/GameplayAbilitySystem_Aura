@@ -7,6 +7,7 @@
 #include "Aura/AuraLogChannels.h"
 #include "Game/AuraGameInstance.h"
 #include "Game/LoadScreenSaveGame.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/PlayerStart.h"
 #include "Interaction/SaveInterface.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,6 +27,7 @@ void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
 	LoadScreenSaveGame->SaveSlotStatus = Taken;
 	LoadScreenSaveGame->MapName = LoadSlot->GetMapName();
 	LoadScreenSaveGame->PlayerStartTag = LoadSlot->PlayerStartTag;
+	LoadScreenSaveGame->MapAssetName = LoadSlot->MapAssetName;
 	
 	UGameplayStatics::SaveGameToSlot(LoadScreenSaveGame, LoadSlot->GetLoadSlotName(),SlotIndex);
 }
@@ -75,7 +77,7 @@ void AAuraGameModeBase::SaveInGameProgressData(ULoadScreenSaveGame* SaveObject)
 	UGameplayStatics::SaveGameToSlot(SaveObject, InGameLoadSlotName, InGameLoadSlotIndex);
 }
 
-void AAuraGameModeBase::SaveWorldState(UWorld* World) const
+void AAuraGameModeBase::SaveWorldState(UWorld* World, const FString& DestinationMapAssetName) const
 {
 	FString WorldName = World->GetMapName();
 	WorldName.RemoveFromStart(World->StreamingLevelsPrefix); //시작부터 특정 글 없애기
@@ -85,6 +87,11 @@ void AAuraGameModeBase::SaveWorldState(UWorld* World) const
 
 	if (ULoadScreenSaveGame* SaveGame = GetSaveSlotData(AuraGI->LoadSlotName, AuraGI->LoadSlotIndex))
 	{
+		if (DestinationMapAssetName != FString("") )
+		{
+			SaveGame->MapAssetName = DestinationMapAssetName;
+			SaveGame->MapName = GetMapNameFromMapAssetName(DestinationMapAssetName);
+		}
 		if (!SaveGame->HasMap(WorldName))
 		{
 			FSavedMap NewSavedMap;
@@ -177,6 +184,18 @@ void AAuraGameModeBase::TravelToMap(UMVVM_LoadSlot* Slot)
 	UGameplayStatics::OpenLevelBySoftObjectPtr(Slot, Maps.FindChecked(Slot->GetMapName()));
 }
 
+FString AAuraGameModeBase::GetMapNameFromMapAssetName(const FString& MapAssetName) const
+{
+	for (auto& Map:Maps)
+	{
+		if (Map.Value.ToSoftObjectPath().GetAssetName() == MapAssetName) //softobject포인터로부터 asset네임을 얻는 방법
+		{
+			return Map.Key;
+		}
+	}
+	return FString();
+}
+
 AActor* AAuraGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 {
 	UAuraGameInstance* AuraGameInstance = Cast<UAuraGameInstance>(GetGameInstance());
@@ -201,6 +220,14 @@ AActor* AAuraGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 		
 	}
 	return nullptr;//nullptr이라도 오류는 안 남.
+}
+
+void AAuraGameModeBase::PlayerDied(ACharacter* DeadCharacter)
+{
+	ULoadScreenSaveGame* SaveGame = RetrieveInGameSaveData();
+	if (!IsValid(SaveGame)) return;
+
+	UGameplayStatics::OpenLevel(DeadCharacter, FName(SaveGame->MapAssetName));
 }
 
 void AAuraGameModeBase::BeginPlay()

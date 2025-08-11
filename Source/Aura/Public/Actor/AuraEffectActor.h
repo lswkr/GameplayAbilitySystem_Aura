@@ -34,9 +34,40 @@ class AURA_API AAuraEffectActor : public AActor
 public:	
 	AAuraEffectActor();
 
+	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadWrite)
+	FVector CalculatedLocation;
+
+	UPROPERTY(BlueprintReadWrite)
+	FRotator CalculatedRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement")
+	bool bRotates = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement")
+	float RotationRate = 45.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement")
+	bool bSinusoidalMovement = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement")
+	float SineAmplitude = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement")
+	float SinePeriodConstant = 1.f; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement")
+	FVector InitialLocation;
+
+	UFUNCTION(BlueprintCallable)
+	void StartSinusoidalMovement();
+
+	UFUNCTION(BlueprintCallable)
+	void StartRotation();
+	
 	UFUNCTION(BlueprintCallable)
 	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass);
 
@@ -75,6 +106,10 @@ protected:
 
 	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveEffectHandles; //FActiveGameplayEffectHandle포인터나 참조가 아니므로 전방 선안 하지 않음, GameplayEffectTypes헤더파일을 바로 가져옴
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Applied Effects")
 	float ActorLevel = 1.f;
+
+private:
+	float RunningTime = 0.f;
+	void ItemMovement(float DeltaTime);
 };

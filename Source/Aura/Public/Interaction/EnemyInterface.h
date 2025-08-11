@@ -22,8 +22,6 @@ class AURA_API IEnemyInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void HighlightActor() = 0;
-	virtual void UnHighlightActor() = 0;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetCombatTarget(AActor* InCombatTarget);//블루프린트 네이티브 이벤트-자동으로 만들어지는 Implementaion함수를 Enemy에서 오버라이드한다(자동으로 virtual임).
